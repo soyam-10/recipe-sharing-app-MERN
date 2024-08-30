@@ -4,13 +4,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import api from "../api"; // Adjust the path as needed
-import { toast } from 'sonner'
+import { toast } from "sonner";
+import { useAtom } from "jotai";
+import { sessionAtom } from "@/atoms/session";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const [, setSession] = useAtom(sessionAtom);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -19,8 +22,14 @@ export default function Login() {
     try {
       const response = await api.post("/users/login", { email, password });
       console.log(response.data); // Handle login response
-      const userFullName = response.data.user.fullName;
-      toast.success(`Login success ${userFullName}`);
+
+      // Save session data to localStorage
+      localStorage.setItem("session", JSON.stringify(response.data));
+
+      // Set session in state
+      setSession(response.data);
+
+      toast.success(`Login success ${response.data.user.fullName}`);
       navigate("/"); // Redirect to home page on successful login
     } catch (err) {
       setError("Invalid credentials. Please try again.");

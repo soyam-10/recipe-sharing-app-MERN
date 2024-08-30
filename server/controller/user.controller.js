@@ -7,7 +7,7 @@ const router = express.Router();
 
 // Register User
 const registerUser = async (req, res) => {
-  const { email, password, profilePicture, bio, role } = req.body;
+  const { fullName, email, password, profilePicture, bio, role } = req.body;
 
   // Restrict roles to only 'user' or 'cook'
   if (role && !["user", "cook"].includes(role)) {
@@ -24,6 +24,7 @@ const registerUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     user = new User({
+      fullName,
       email,
       password: hashedPassword,
       profilePicture,
@@ -32,12 +33,17 @@ const registerUser = async (req, res) => {
     });
 
     await user.save();
-    const token = jwt.sign({ userId: user.id, role: user.role }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
+    const token = jwt.sign(
+      { userId: user.id, role: user.role },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1h",
+      }
+    );
     res.status(201).json({
       token,
       user: {
+        fullName: user.fullName,
         email: user.email,
         profilePicture: user.profilePicture,
         bio: user.bio,
@@ -54,27 +60,28 @@ const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    // Find the user by email
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    // Compare the provided password with the hashed password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    // Generate a token
-    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
+    const token = jwt.sign(
+      { userId: user.id, role: user.role },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1h",
+      }
+    );
 
-    // Respond with the token and user details
     res.status(200).json({
       token,
       user: {
+        fullName: user.fullName,
         email: user.email,
         profilePicture: user.profilePicture,
         bio: user.bio,
@@ -87,7 +94,7 @@ const loginUser = async (req, res) => {
 };
 
 const getUserByEmail = async (req, res) => {
-  const { email } = req.query; // Fetch email from query parameters
+  const { email } = req.query;
 
   try {
     if (!email) {
@@ -104,11 +111,11 @@ const getUserByEmail = async (req, res) => {
         .json({ success: false, message: "User not found" });
     }
 
-    // Return user details excluding the password
     res.status(200).json({
       success: true,
       user: {
         id: user._id,
+        fullName: user.fullName,
         email: user.email,
         profilePicture: user.profilePicture,
         bio: user.bio,
@@ -123,9 +130,9 @@ const getAllUsers = async (req, res) => {
   try {
     const users = await User.find();
 
-    // Exclude sensitive information like passwords
     const sanitizedUsers = users.map((user) => ({
       id: user._id,
+      fullName: user.fullName,
       email: user.email,
       profilePicture: user.profilePicture,
       bio: user.bio,

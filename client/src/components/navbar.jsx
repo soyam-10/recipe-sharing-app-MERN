@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -15,6 +15,7 @@ import { sessionAtom } from "@/atoms/session";
 
 export default function Navbar() {
   const [session, setSession] = useAtom(sessionAtom);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Retrieve session from localStorage on mount
@@ -23,6 +24,15 @@ export default function Navbar() {
       setSession(JSON.parse(storedSession));
     }
   }, [setSession]);
+
+  const handleLogout = () => {
+    // Clear session from localStorage
+    localStorage.removeItem("session");
+    // Update session atom
+    setSession(null);
+    // Redirect to login page
+    navigate("/login");
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full bg-background shadow-sm">
@@ -47,16 +57,16 @@ export default function Navbar() {
             Recipes
           </Link>
           <Link
-            to="/categories"
-            className="text-sm font-medium text-foreground transition-colors hover:text-primary"
-          >
-            Categories
-          </Link>
-          <Link
             to="/about"
             className="text-sm font-medium text-foreground transition-colors hover:text-primary"
           >
             About
+          </Link>
+          <Link
+            to="/profile"
+            className="text-sm font-medium text-foreground transition-colors hover:text-primary"
+          >
+            Profile
           </Link>
         </nav>
         <div className="flex items-center gap-2">
@@ -82,8 +92,8 @@ export default function Navbar() {
                 <DropdownMenuItem>Profile</DropdownMenuItem>
                 <DropdownMenuItem>Settings</DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <Link to="/login">Logout</Link>
+                <DropdownMenuItem onClick={handleLogout}>
+                  Logout
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

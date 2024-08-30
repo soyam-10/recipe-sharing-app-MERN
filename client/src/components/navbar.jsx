@@ -18,7 +18,7 @@ export default function Navbar() {
 
   useEffect(() => {
     // Retrieve session from localStorage on mount
-    const storedSession = localStorage.getItem('session');
+    const storedSession = localStorage.getItem("session");
     if (storedSession) {
       setSession(JSON.parse(storedSession));
     }
@@ -66,14 +66,19 @@ export default function Navbar() {
                 <Button variant="ghost" size="icon" className="rounded-full">
                   <Avatar className="h-8 w-8">
                     <AvatarImage
-                      src={session.user.profilePicture} // Adjust this according to your data structure
+                      src={
+                        session.user.profilePicture || "https://github.com/shadcn.png"
+                      }
                       alt={session.user.fullName}
                     />
-                    <AvatarFallback>{session.user.fullName.charAt(0)}</AvatarFallback>
+                    <AvatarFallback>{(session.user.fullName[0]).toUpperCase()}</AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                <DropdownMenuItem>
+                  {session.user.fullName.toUpperCase()}
+                </DropdownMenuItem>
                 <DropdownMenuItem>Profile</DropdownMenuItem>
                 <DropdownMenuItem>Settings</DropdownMenuItem>
                 <DropdownMenuSeparator />
@@ -84,9 +89,7 @@ export default function Navbar() {
             </DropdownMenu>
           ) : (
             <Link to="/login">
-              <Button variant="outline" className="w-full">
-                Log In
-              </Button>
+              <Button>Login</Button>
             </Link>
           )}
         </div>

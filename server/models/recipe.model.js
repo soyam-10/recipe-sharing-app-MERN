@@ -3,6 +3,9 @@ const mongoose = require("mongoose");
 const recipeSchema = new mongoose.Schema(
   {
     title: { type: String, required: [true, "Title is required"] },
+    recipePicture: { type: String },
+    cookTime: { type: Number },
+    description: { type: String },
     ingredients: {
       type: [String],
       required: [true, "Ingredients are required"],

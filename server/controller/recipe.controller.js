@@ -5,6 +5,9 @@ const createRecipe = async (req, res) => {
   try {
     const {
       title,
+      recipePicture,
+      cookTime,
+      description,
       ingredients,
       instructions,
       tags,
@@ -15,6 +18,9 @@ const createRecipe = async (req, res) => {
     } = req.body;
     const newRecipe = await recipeModel.create({
       title,
+      recipePicture,
+      cookTime,
+      description,
       ingredients,
       instructions,
       tags,

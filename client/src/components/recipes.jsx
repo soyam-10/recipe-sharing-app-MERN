@@ -1,9 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Clock, Utensils, ChevronLeft, ChevronRight } from "lucide-react";
-import AddRecipeForm from './addRecipe';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
+import Loading from "./loading";
 
 const ITEMS_PER_PAGE = 9;
 
@@ -17,9 +23,9 @@ export default function Recipes() {
   useEffect(() => {
     const fetchRecipes = async () => {
       try {
-        const response = await fetch('http://localhost:5000/recipes'); // Adjust the URL to match your backend route
+        const response = await fetch("http://localhost:5000/recipes"); // Adjust the URL to match your backend route
         if (!response.ok) {
-          throw new Error('Network response was not ok');
+          throw new Error("Network response was not ok");
         }
         const data = await response.json();
         setRecipes(data.recipes);
@@ -46,18 +52,26 @@ export default function Recipes() {
     navigate(`/recipes/${id}`); // Navigate to the recipe detail page with the recipe ID
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading)
+    return (
+      <div>
+        <Loading />
+      </div>
+    );
   if (error) return <div>Error: {error.message}</div>;
 
   return (
     <div className="container mx-auto px-4 py-8">
-        <AddRecipeForm />
       <h1 className="text-3xl font-bold mb-8 text-center">Our Recipes</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {currentRecipes.map((recipe) => (
           <Card key={recipe._id} className="flex flex-col">
             <CardHeader className="p-0">
-              <img src={recipe.recipePicture} alt={recipe.title} className="w-full h-48 object-cover rounded-t-lg" />
+              <img
+                src={recipe.recipePicture}
+                alt={recipe.title}
+                className="w-full h-48 object-cover rounded-t-lg"
+              />
             </CardHeader>
             <CardContent className="flex-grow p-4">
               <CardTitle className="text-xl mb-2">{recipe.title}</CardTitle>
@@ -74,7 +88,12 @@ export default function Recipes() {
               </div>
             </CardContent>
             <CardFooter className="p-4 pt-0">
-              <Button className="w-full" onClick={() => handleViewRecipe(recipe._id)}>View Recipe</Button>
+              <Button
+                className="w-full"
+                onClick={() => handleViewRecipe(recipe._id)}
+              >
+                View Recipe
+              </Button>
             </CardFooter>
           </Card>
         ))}

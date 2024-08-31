@@ -1,6 +1,6 @@
 
 import HeroCarousel from "./heroCarousel";
-import RecipePage from "./recipePage";
+import RecipeManagement from "./recipeManagement";
 
 const Home = () => {
   return (
@@ -9,7 +9,8 @@ const Home = () => {
       <div className="bg-slate-500 p-10">
         <HeroCarousel />
       </div>
-      <RecipePage />
+
+      <RecipeManagement />
     </>
   );
 };

@@ -9,60 +9,72 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Clock, ChevronRight, CookingPot } from "lucide-react";
-
-const recipes = [
-  {
-    title: "Spaghetti Carbonara",
-    description:
-      "A classic Italian pasta dish with eggs, cheese, and pancetta.",
-    cookTime: "25 min",
-    uploader: "Chef Mario",
-    tags: ["non-veg", "Italian"],
-    category: "Main Course",
-    date: "2023-05-15",
-    image:
-      "https://allforpizza.com/wp-content/uploads/2022/07/1460A7EC-CF3B-40E8-B05F-A21E12E85EC6.jpeg",
-  },
-  {
-    title: "Chicken Tikka Masala",
-    description:
-      "A flavorful Indian curry dish with tender chicken in a creamy tomato sauce.",
-    cookTime: "40 min",
-    uploader: "Chef Priya",
-    tags: ["non-veg", "Indian"],
-    category: "Main Course",
-    date: "2023-06-22",
-    image:
-      "https://allforpizza.com/wp-content/uploads/2022/07/1460A7EC-CF3B-40E8-B05F-A21E12E85EC6.jpeg",
-  },
-  {
-    title: "Avocado Toast",
-    description:
-      "A simple and nutritious breakfast with mashed avocado on toasted bread.",
-    cookTime: "10 min",
-    uploader: "Chef Emma",
-    tags: ["veg", "Breakfast"],
-    category: "Breakfast",
-    date: "2023-07-03",
-    image:
-      "https://scontent.fktm21-1.fna.fbcdn.net/v/t39.30808-6/449947667_1670914836992934_1837236409254361875_n.jpg?_nc_cat=101&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=WT0QPEd5RH8Q7kNvgE0RahX&_nc_ht=scontent.fktm21-1.fna&oh=00_AYB8n22LmRLJBjmwDPDDgIg6W-h3CVtidV5z_ji5hgC3ZQ&oe=66D75E19",
-  },
-];
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import Loading from "./loading";
+import { useNavigate } from "react-router-dom";
 
 export default function HeroCarousel() {
+  const [recipes, setRecipes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchRecipes = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/recipes"); // Adjust the URL to match your backend route
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const data = await response.json();
+
+        // Fetch user info for each recipe
+        const recipesWithUserInfo = await Promise.all(
+          data.recipes.map(async (recipe) => {
+            const userResponse = await fetch(
+              `http://localhost:5000/users/${recipe.user}`
+            );
+            if (!userResponse.ok) {
+              throw new Error("Failed to fetch user info");
+            }
+            const userInfo = await userResponse.json();
+            return { ...recipe, userInfo };
+          })
+        );
+
+        setRecipes(recipesWithUserInfo);
+      } catch (error) {
+        setError(error);
+        toast.error(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRecipes();
+  }, []);
+
+  const navigate = useNavigate();
+
+  const handleViewRecipe = (id) => {
+    navigate(`/recipes/${id}`);
+  };
+
+  if (loading)
+    return (
+      <div>
+        <Loading />
+      </div>
+    );
+  if (error) return <div>Error: {error.message}</div>;
+
   return (
     <Carousel className="w-[80%] mx-auto h-[500px]">
-      {" "}
-      {/* Set a fixed height for the carousel */}
       <CarouselContent>
         {recipes.map((recipe, index) => (
           <CarouselItem key={index} className="h-full">
-            {" "}
-            {/* Ensure each item takes the full height */}
             <Card className="w-full h-full max-w-full mx-auto overflow-hidden rounded-3xl">
               <CardContent className="p-0 flex h-full">
-                {" "}
-                {/* Ensure CardContent takes the full height */}
                 <div className="flex-1 bg-sky-50 p-8 flex flex-col justify-between">
                   <div>
                     <Badge
@@ -103,16 +115,29 @@ export default function HeroCarousel() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
                       <img
-                        src="https://github.com/shadcn.png"
-                        alt={recipe.uploader}
+                        src={recipe.userInfo.user.profilePicture}
+                        alt={recipe.userInfo.user.fullName}
                         className="w-10 h-10 rounded-full mr-3"
                       />
                       <div>
-                        <p className="font-semibold">{recipe.uploader}</p>
-                        <p className="text-sm text-gray-600">{recipe.date}</p>
+                        <p>{recipe.userInfo.user.fullName}</p>
+                        <p className="text-sm text-gray-600">
+                          {new Date(recipe.createdAt).toLocaleDateString(
+                            "en-US",
+                            {
+                              weekday: "long",
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            }
+                          )}
+                        </p>
                       </div>
                     </div>
-                    <Button className="bg-black text-white rounded-full px-6 py-2 flex items-center">
+                    <Button
+                      className="bg-black text-white rounded-full px-6 py-2 flex items-center"
+                      onClick={() => handleViewRecipe(recipe._id)}
+                    >
                       View Recipe
                       <ChevronRight className="w-4 h-4 ml-2" />
                     </Button>
@@ -120,7 +145,7 @@ export default function HeroCarousel() {
                 </div>
                 <div className="flex-1 h-[500px]">
                   <img
-                    src={recipe.image}
+                    src={recipe.recipePicture}
                     alt={recipe.title}
                     className="w-full h-full object-cover"
                   />

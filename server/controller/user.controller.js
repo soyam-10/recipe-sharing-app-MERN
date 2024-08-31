@@ -98,9 +98,10 @@ const getUserByEmail = async (req, res) => {
 
   try {
     if (!email) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Email is required" });
+      return res.status(400).json({
+        success: false,
+        message: "Email is required or Email is invalid",
+      });
     }
 
     const user = await User.findOne({ email });
@@ -113,35 +114,40 @@ const getUserByEmail = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      user: {
-        id: user._id,
-        fullName: user.fullName,
-        email: user.email,
-        profilePicture: user.profilePicture,
-        bio: user.bio,
-      },
+      user: user,
     });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 };
 
+// GET a user by ID
+const getUserByID = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.status(200).json({ success: true, user });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+};
+
 const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find();
-
-    const sanitizedUsers = users.map((user) => ({
-      id: user._id,
-      fullName: user.fullName,
-      email: user.email,
-      profilePicture: user.profilePicture,
-      bio: user.bio,
-    }));
-
-    res.status(200).json({ success: true, users: sanitizedUsers });
+    const allUsers = await User.find();
+    res.status(200).json({ success: true, users: allUsers });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 };
 
-module.exports = { registerUser, loginUser, getUserByEmail, getAllUsers };
+module.exports = {
+  registerUser,
+  loginUser,
+  getUserByEmail,
+  getAllUsers,
+  getUserByID,
+};

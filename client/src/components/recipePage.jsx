@@ -3,32 +3,45 @@ import { Clock, Printer, Share2, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator"
+import { Separator } from "@/components/ui/separator";
 import { useParams } from "react-router-dom";
+import Loading from "./loading";
 
 export default function RecipePage() {
-    const { id } = useParams(); // Get recipe ID from URL
-    const [recipe, setRecipe] = useState(null);
-  
-    useEffect(() => {
-      async function fetchRecipe() {
-        try {
-          const response = await fetch(`http://localhost:5000/recipes/${id}`);
-          const data = await response.json();
-          if (data.success) {
-            setRecipe(data.recipe);
+  const { id } = useParams(); // Get recipe ID from URL
+  const [recipe, setRecipe] = useState(null);
+  const [userInfo, setUserInfo] = useState(null); // State to store user information
+
+  useEffect(() => {
+    async function fetchRecipe() {
+      try {
+        const response = await fetch(`http://localhost:5000/recipes/${id}`);
+        const data = await response.json();
+        if (data.success) {
+          setRecipe(data.recipe);
+
+          // Fetch user info based on recipe user ID
+          const userResponse = await fetch(`http://localhost:5000/users/${data.recipe.user}`);
+          const userData = await userResponse.json();
+          if (userData.success) {
+            setUserInfo(userData.user); // Assuming the API returns a 'user' object
           }
-        } catch (error) {
-          console.error("Error fetching recipe data:", error);
         }
+      } catch (error) {
+        console.error("Error fetching recipe or user data:", error);
       }
-  
-      fetchRecipe();
-    }, [id]);
-  
-  // Display loading or error message if recipe data is not available
-  if (!recipe) {
-    return <div>Loading...</div>;
+    }
+
+    fetchRecipe();
+  }, [id]);
+
+  // Display loading or error message if recipe or user data is not available
+  if (!recipe || !userInfo) {
+    return (
+      <div>
+        <Loading />
+      </div>
+    );
   }
 
   // Destructure recipe data
@@ -41,11 +54,13 @@ export default function RecipePage() {
     instructions,
     tags,
     category,
-    user,
     ratings,
     reviews,
     createdAt,
   } = recipe;
+
+  // Destructure user data
+  const { fullName, profilePicture } = userInfo;
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -63,11 +78,11 @@ export default function RecipePage() {
 
       <div className="flex items-center space-x-4 mb-6">
         <Avatar>
-          <AvatarFallback>{user[0]}</AvatarFallback>{" "}
-          {/* Placeholder for user's initials */}
+          <img src={profilePicture} alt={fullName} className="w-10 h-10 rounded-full" />
+          <AvatarFallback>{fullName ? fullName[0] : "U"}</AvatarFallback> {/* Fallback for user's initials */}
         </Avatar>
         <div>
-          <p className="font-semibold">User {user}</p>
+          <p className="font-semibold">{fullName}</p>
           <p className="text-sm text-muted-foreground">
             Created on: {new Date(createdAt).toLocaleDateString()}
           </p>
@@ -155,7 +170,7 @@ export default function RecipePage() {
                         {/* Placeholder for reviewer's initials */}
                       </Avatar>
                       <div>
-                        <p className="font-semibold">User {review.user}</p>
+                        <p className="font-semibold">{review.user}</p>
                         <p className="text-sm text-muted-foreground">
                           {new Date(review.createdAt).toLocaleDateString()}
                         </p>
@@ -188,7 +203,7 @@ export default function RecipePage() {
 
       <div className="mb-8">
         <h2 className="text-2xl font-semibold mb-4">Instructions</h2>
-        <ol className="list-decimal list-inside space-y-4">
+        <ul className="list-decimal list-inside space-y-4">
           {instructions.split("\n").map((step, index) => (
             step.trim() && (
               <li key={index} className="mt-2">
@@ -196,7 +211,7 @@ export default function RecipePage() {
               </li>
             )
           ))}
-        </ol>
+        </ul>
       </div>
     </div>
   );

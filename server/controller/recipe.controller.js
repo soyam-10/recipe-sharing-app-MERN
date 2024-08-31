@@ -181,6 +181,21 @@ const addReview = async (req, res) => {
   }
 };
 
+// GET request to fetch recipes by user ID
+const getRecipesByUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const recipes = await recipeModel.find({ user: userId });
+    if (recipes.length === 0) {
+      return res.status(404).json({ success: false, message: "No recipes found for this user" });
+    }
+    res.status(200).json({ success: true, totalRecipes: recipes.length, recipes });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+};
+
+
 module.exports = {
   createRecipe,
   getRecipes,
@@ -190,4 +205,5 @@ module.exports = {
   filterRecipes,
   addRating,
   addReview,
+  getRecipesByUser,
 };

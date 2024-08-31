@@ -1,5 +1,5 @@
 import { Routes, Route, useLocation } from "react-router-dom";
-import Home from "./components/Home";
+import Home from "./components/home";
 import Register from "./components/Register";
 import { Toaster } from "sonner";
 import Navbar from "./components/navbar";
@@ -25,7 +25,7 @@ function App() {
         <Route path="/recipes" element={<Recipes />} />
         <Route path="/about" element={<About />} />
         <Route path="/profile" element={<Profile />} />
-        <Route path="/recipes/:id" element={<RecipePage />} /> {/* Route for recipe details */}
+        <Route path="/recipes/:id" element={<RecipePage />} />
       </Routes>
       <Footer />
     </>

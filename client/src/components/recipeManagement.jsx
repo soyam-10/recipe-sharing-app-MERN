@@ -61,14 +61,11 @@ export default function RecipeManagement() {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/recipes/user/${session.user.id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${session.token}`,
-          },
-        }
+        `http://localhost:5000/recipes/user/${session.user.id}`
       );
-      if (!response.ok) throw new Error("Failed to fetch recipes");
+      if (response.status === 404) {
+        return <div>No recipes added by you !</div>;
+      }
       const data = await response.json();
       setRecipes(data.recipes || []);
     } catch (error) {
@@ -170,9 +167,7 @@ export default function RecipeManagement() {
           body: JSON.stringify(recipe),
         });
         if (!response.ok) throw new Error("Failed to add recipe");
-        console.log(recipe);
         const data = await response.json();
-        console.log(data);
         setRecipes((prev) => [...prev, data.newRecipe]);
         setRecipe({
           title: "",
@@ -188,6 +183,7 @@ export default function RecipeManagement() {
         setErrors({});
         setIsDialogOpen(false);
         toast.success("Recipe added successfully.");
+        fetchRecipes();
       } catch (error) {
         console.error("Error submitting recipe:", error);
         toast.error("Failed to add recipe. Please try again.");
@@ -216,10 +212,7 @@ export default function RecipeManagement() {
             aria-describedby="dialog-description"
           >
             <DialogHeader>
-              <DialogTitle
-                
-                className="text-3xl font-bold flex items-center"
-              >
+              <DialogTitle className="text-3xl font-bold flex items-center">
                 <ChefHat className="mr-2" /> Create a New Recipe
               </DialogTitle>
               <DialogDescription>
@@ -434,29 +427,35 @@ export default function RecipeManagement() {
       </div>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {recipes.map((recipe) => (
-          <Card key={recipe._id} className="border border-gray-200">
-            <CardHeader>
-              <CardTitle>{recipe.title}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <img
-                src={recipe.recipePicture}
-                alt={recipe.title}
-                className="w-full h-40 object-cover"
-              />
-              <p className="mt-2">{recipe.description}</p>
-            </CardContent>
-            <CardFooter>
-              <Button
-                onClick={() => handleDeleteRecipe(recipe._id)}
-                variant="destructive"
-              >
-                Delete
-              </Button>
-            </CardFooter>
-          </Card>
-        ))}
+        {recipes ? (
+          recipes.map((recipe) => (
+            <Card key={recipe._id} className="border border-gray-200">
+              <CardHeader>
+                <CardTitle>{recipe.title}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <img
+                  src={recipe.recipePicture}
+                  alt={recipe.title}
+                  className="w-full h-40 object-cover"
+                />
+                <p className="mt-2">{recipe.description}</p>
+              </CardContent>
+              <CardFooter>
+                <Button
+                  onClick={() => handleDeleteRecipe(recipe._id)}
+                  variant="destructive"
+                >
+                  Delete
+                </Button>
+              </CardFooter>
+            </Card>
+          ))
+        ) : (
+          <div>
+            <p>You have not added any recipe yet.</p>
+          </div>
+        )}
       </div>
     </div>
   );

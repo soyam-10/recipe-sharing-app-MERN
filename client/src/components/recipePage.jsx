@@ -21,7 +21,9 @@ export default function RecipePage() {
           setRecipe(data.recipe);
 
           // Fetch user info based on recipe user ID
-          const userResponse = await fetch(`http://localhost:5000/users/${data.recipe.user}`);
+          const userResponse = await fetch(
+            `http://localhost:5000/users/${data.recipe.user}`
+          );
           const userData = await userResponse.json();
           if (userData.success) {
             setUserInfo(userData.user); // Assuming the API returns a 'user' object
@@ -75,11 +77,15 @@ export default function RecipePage() {
           </Button>
         </div>
       </div>
-
       <div className="flex items-center space-x-4 mb-6">
         <Avatar>
-          <img src={profilePicture} alt={fullName} className="w-10 h-10 rounded-full" />
-          <AvatarFallback>{fullName ? fullName[0] : "U"}</AvatarFallback> {/* Fallback for user's initials */}
+          <img
+            src={profilePicture}
+            alt={fullName}
+            className="w-10 h-10 rounded-full"
+          />
+          <AvatarFallback>{fullName ? fullName[0] : "U"}</AvatarFallback>{" "}
+          {/* Fallback for user's initials */}
         </Avatar>
         <div>
           <p className="font-semibold">{fullName}</p>
@@ -94,7 +100,6 @@ export default function RecipePage() {
           </div>
         </div>
       </div>
-
       <div className="grid md:grid-cols-3 gap-8 mb-8">
         <div className="md:col-span-2">
           <img
@@ -104,11 +109,9 @@ export default function RecipePage() {
           />
         </div>
       </div>
-
       <p className="text-muted-foreground mb-8">{description}</p>
-
-      <Separator className="my-8 p-0.5" /> {/* Shadcn Separator for visual separation */}
-
+      <Separator className="my-8 p-0.5" />{" "}
+      {/* Shadcn Separator for visual separation */}
       <div className="mb-6">
         <h2 className="text-2xl font-semibold mb-4">Tags</h2>
         <div className="flex flex-wrap gap-2">
@@ -122,18 +125,16 @@ export default function RecipePage() {
           ))}
         </div>
       </div>
-
-      <Separator className="my-8 p-0.5" /> {/* Shadcn Separator for visual separation */}
-
+      <Separator className="my-8 p-0.5" />{" "}
+      {/* Shadcn Separator for visual separation */}
       <div className="mb-6">
         <h2 className="text-2xl font-semibold mb-4">Category</h2>
         <p className="bg-gray-200 text-gray-800 py-1 px-3 w-fit rounded-full text-sm">
           {category}
         </p>
       </div>
-
-      <Separator className="my-8 p-0.5" /> {/* Shadcn Separator for visual separation */}
-
+      <Separator className="my-8 p-0.5" />{" "}
+      {/* Shadcn Separator for visual separation */}
       <div className="grid md:grid-cols-2 gap-8 mb-8">
         <div>
           <h2 className="text-2xl font-semibold mb-4">Ingredients</h2>
@@ -198,19 +199,19 @@ export default function RecipePage() {
           </div>
         </div>
       </div>
-
-      <Separator className="my-8 p-0.5" /> {/* Shadcn Separator for visual separation */}
-
+      <Separator className="my-8 p-0.5" />{" "}
+      {/* Shadcn Separator for visual separation */}
       <div className="mb-8">
         <h2 className="text-2xl font-semibold mb-4">Instructions</h2>
         <ul className="list-decimal list-inside space-y-4">
-          {instructions.split("\n").map((step, index) => (
-            step.trim() && (
-              <li key={index} className="mt-2">
-                {step}
-              </li>
-            )
-          ))}
+          {instructions.split("\n").map(
+            (step, index) =>
+              step.trim() && (
+                <li key={index} className="mt-2">
+                  {step}
+                </li>
+              )
+          )}
         </ul>
       </div>
     </div>

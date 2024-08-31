@@ -1,96 +1,327 @@
-"use client"
-
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { useState, useEffect, useCallback } from "react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { Camera, Mail, User, FileText } from "lucide-react";
+import Loading from "./loading";
 
 export default function Profile() {
-  const [fullName, setFullName] = useState("")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [profilePicUrl, setProfilePicUrl] = useState("https://github.com/shadcn.png")
-  const [bio, setBio] = useState("")
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState({
+    fullName: "",
+    email: "",
+    profilePicture: "",
+    bio: "",
+    oldPassword: "",
+    newPassword: "",
+  });
+  const [errors, setErrors] = useState({});
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    // Handle form submission here
-    console.log({ fullName, email, password, profilePicUrl, bio })
+  const getUserSession = useCallback(() => {
+    const session = localStorage.getItem("session");
+    return session ? JSON.parse(session) : null;
+  }, []);
+
+  const session = getUserSession();
+
+  useEffect(() => {
+    async function fetchUserData() {
+      try {
+        const response = await fetch(
+          `http://localhost:5000/users/${session.user.id}`
+        );
+        const data = await response.json();
+        if (data.success) {
+          setUser(data.user || []);
+          setProfile((prev) => ({
+            ...prev,
+            fullName: data.user.fullName || "",
+            email: data.user.email || "",
+            profilePicture: data.user.profilePicture || "",
+            bio: data.user.bio || "",
+          }));
+        }
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        toast.error("Failed to fetch user data. Please try again.");
+      }
+    }
+    fetchUserData();
+  }, [session]);
+
+  const validateProfileForm = () => {
+    const newErrors = {};
+    if (!profile.fullName) newErrors.fullName = "Full name is required";
+    if (!profile.email) newErrors.email = "Email is required";
+    return Object.keys(newErrors).length === 0 ? null : newErrors;
+  };
+
+  const validatePasswordForm = () => {
+    const newErrors = {};
+    if (!profile.oldPassword) newErrors.oldPassword = "Old password is required";
+    if (!profile.newPassword) newErrors.newPassword = "New password is required";
+    return Object.keys(newErrors).length === 0 ? null : newErrors;
+  };
+
+  const handleProfileSubmit = async (e) => {
+    e.preventDefault();
+    const formErrors = validateProfileForm();
+    if (!formErrors) {
+      if (!session || !session.token) {
+        toast.error("Please log in to update your profile.");
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `http://localhost:5000/users/${session.user.id}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${session.token}`,
+            },
+            body: JSON.stringify(profile),
+          }
+        );
+        if (!response.ok) throw new Error("Failed to update profile");
+        toast.success("Profile updated successfully.");
+        setUser(profile);
+      } catch (error) {
+        console.error("Error updating profile:", error);
+        toast.error("Failed to update profile. Please try again.");
+      }
+    } else {
+      setErrors(formErrors);
+    }
+  };
+
+  const handlePasswordSubmit = async (e) => {
+    e.preventDefault();
+    const formErrors = validatePasswordForm();
+    if (!formErrors) {
+      if (!session || !session.token) {
+        toast.error("Please log in to update your password.");
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `http://localhost:5000/users/password/${session.user.id}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${session.token}`,
+            },
+            body: JSON.stringify({
+              oldPassword: profile.oldPassword,
+              newPassword: profile.newPassword,
+            }),
+          }
+        );
+        if (!response.ok) throw new Error("Failed to update password");
+        toast.success("Password updated successfully.");
+        setProfile((prev) => ({
+          ...prev,
+          oldPassword: "",
+          newPassword: "",
+        }));
+      } catch (error) {
+        console.error("Error updating password:", error);
+        toast.error("Failed to update password. Please try again.");
+      }
+    } else {
+      setErrors(formErrors);
+    }
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setProfile((prev) => ({ ...prev, [name]: value }));
+  };
+
+  if (loading) {
+    return <Loading />;
+  }
+  if (!user) {
+    return <div>No user data available.</div>;
   }
 
   return (
-    <Card className="w-full max-w-3xl mx-auto bg-gray-50">
-      <CardHeader>
-        <CardTitle className="text-2xl font-bold text-gray-800">Edit Profile</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="flex items-center space-x-6">
-            <Avatar className="w-24 h-24 bg-gray-200">
-              <AvatarImage src={profilePicUrl} alt={fullName} />
-              <AvatarFallback className="text-gray-600">{fullName.split(' ').map(n => n[0]).join('').toUpperCase()}</AvatarFallback>
+    <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <Card className="mb-8">
+        <CardHeader className="pb-4">
+          <div className="flex items-center space-x-4">
+            <Avatar className="w-24 h-24 border-4 border-primary">
+              <AvatarImage src={user.profilePicture} alt={user.fullName} />
+              <AvatarFallback className="text-2xl font-bold bg-primary text-primary-foreground">
+                {user.fullName
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")
+                  .toUpperCase()}
+              </AvatarFallback>
             </Avatar>
-            <div className="flex-1">
-              <Label htmlFor="profilePicUrl" className="text-gray-700">Profile Picture URL</Label>
-              <Input
-                id="profilePicUrl"
-                value={profilePicUrl}
-                onChange={(e) => setProfilePicUrl(e.target.value)}
-                placeholder="https://example.com/profile-pic.jpg"
-                className="bg-white border-gray-300"
-              />
+            <div>
+              <CardTitle className="text-3xl font-bold">
+                {user.fullName}
+              </CardTitle>
+              <p className="text-muted-foreground">{user.email}</p>
+              <Badge variant="outline" className="mt-2">
+                {user.role || "Member"}
+              </Badge>
             </div>
           </div>
-          <div>
-            <Label htmlFor="fullName" className="text-gray-700">Full Name</Label>
-            <Input
-              id="fullName"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              placeholder="John Doe"
-              className="bg-white border-gray-300"
-            />
-          </div>
-          <div>
-            <Label htmlFor="email" className="text-gray-700">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="johndoe@example.com"
-              className="bg-white border-gray-300"
-            />
-          </div>
-          <div>
-            <Label htmlFor="password" className="text-gray-700">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="bg-white border-gray-300"
-            />
-          </div>
-          <div>
-            <Label htmlFor="bio" className="text-gray-700">Bio</Label>
-            <Textarea
-              id="bio"
-              value={bio}
-              onChange={(e) => setBio(e.target.value)}
-              placeholder="Tell us about yourself"
-              className="min-h-[100px] bg-white border-gray-300"
-            />
-          </div>
-        </form>
-      </CardContent>
-      <CardFooter>
-        <Button onClick={handleSubmit} className="w-full bg-blue-500 text-white hover:bg-blue-600">Save Changes</Button>
-      </CardFooter>
-    </Card>
-  )
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground">
+            {user.bio || "No bio provided."}
+          </p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Edit Your Profile</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleProfileSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="fullName" className="text-base">
+                <User className="w-4 h-4 inline mr-2" />
+                Full Name
+              </Label>
+              <Input
+                id="fullName"
+                name="fullName"
+                value={profile.fullName || ""}
+                onChange={handleChange}
+                required
+                className="transition-all duration-300 focus:ring-2 focus:ring-primary"
+                placeholder="Enter your full name"
+              />
+              {errors.fullName && (
+                <p className="text-destructive text-sm">{errors.fullName}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-base">
+                <Mail className="w-4 h-4 inline mr-2" />
+                Email
+              </Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                value={profile.email || ""}
+                onChange={handleChange}
+                required
+                className="transition-all duration-300 focus:ring-2 focus:ring-primary"
+                placeholder="Enter your email"
+              />
+              {errors.email && (
+                <p className="text-destructive text-sm">{errors.email}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="profilePicture" className="text-base">
+                <Camera className="w-4 h-4 inline mr-2" />
+                Profile Picture URL
+              </Label>
+              <Input
+                id="profilePicture"
+                name="profilePicture"
+                type="url"
+                value={profile.profilePicture || ""}
+                onChange={handleChange}
+                className="transition-all duration-300 focus:ring-2 focus:ring-primary"
+                placeholder="Enter profile picture URL"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="bio" className="text-base">
+                <FileText className="w-4 h-4 inline mr-2" />
+                Bio
+              </Label>
+              <Textarea
+                id="bio"
+                name="bio"
+                value={profile.bio || ""}
+                onChange={handleChange}
+                rows={4}
+                className="transition-all duration-300 focus:ring-2 focus:ring-primary"
+                placeholder="Tell us about yourself"
+              />
+            </div>
+
+            <Button type="submit" className="w-full bg-primary text-white">
+              Save Changes
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+
+      <Card className="mt-8">
+        <CardHeader>
+          <CardTitle>Change Your Password</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handlePasswordSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="oldPassword" className="text-base">
+                Old Password
+              </Label>
+              <Input
+                id="oldPassword"
+                name="oldPassword"
+                type="password"
+                value={profile.oldPassword || ""}
+                onChange={handleChange}
+                required
+                className="transition-all duration-300 focus:ring-2 focus:ring-primary"
+                placeholder="Enter your old password"
+              />
+              {errors.oldPassword && (
+                <p className="text-destructive text-sm">{errors.oldPassword}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="newPassword" className="text-base">
+                New Password
+              </Label>
+              <Input
+                id="newPassword"
+                name="newPassword"
+                type="password"
+                value={profile.newPassword || ""}
+                onChange={handleChange}
+                required
+                className="transition-all duration-300 focus:ring-2 focus:ring-primary"
+                placeholder="Enter your new password"
+              />
+              {errors.newPassword && (
+                <p className="text-destructive text-sm">{errors.newPassword}</p>
+              )}
+            </div>
+
+            <Button type="submit" className="w-full bg-primary text-white">
+              Change Password
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  );
 }

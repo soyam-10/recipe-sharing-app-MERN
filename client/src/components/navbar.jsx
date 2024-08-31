@@ -81,7 +81,7 @@ export default function Navbar() {
                       }
                       alt={session.user.fullName}
                     />
-                    <AvatarFallback>{(session.user.fullName[0]).toUpperCase()}</AvatarFallback>
+                    <AvatarFallback>{(session.user.fullName).toUpperCase()}</AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>

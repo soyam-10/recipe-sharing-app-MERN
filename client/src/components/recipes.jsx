@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Clock, Utensils, ChevronLeft, ChevronRight } from "lucide-react";
 import AddRecipeForm from './addRecipe';
+import { useNavigate } from 'react-router-dom';
 
 const ITEMS_PER_PAGE = 9;
 
@@ -11,6 +12,7 @@ export default function Recipes() {
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate(); // Initialize useNavigate
 
   useEffect(() => {
     const fetchRecipes = async () => {
@@ -40,6 +42,10 @@ export default function Recipes() {
     setCurrentPage(pageNumber);
   };
 
+  const handleViewRecipe = (id) => {
+    navigate(`/recipes/${id}`); // Navigate to the recipe detail page with the recipe ID
+  };
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
 
@@ -59,7 +65,7 @@ export default function Recipes() {
               <div className="flex justify-between text-sm text-gray-500">
                 <span className="flex items-center">
                   <Clock className="w-4 h-4 mr-1" />
-                  {recipe.cookTime}
+                  {recipe.cookTime} Min
                 </span>
                 <span className="flex items-center">
                   <Utensils className="w-4 h-4 mr-1" />
@@ -68,7 +74,7 @@ export default function Recipes() {
               </div>
             </CardContent>
             <CardFooter className="p-4 pt-0">
-              <Button className="w-full">View Recipe</Button>
+              <Button className="w-full" onClick={() => handleViewRecipe(recipe._id)}>View Recipe</Button>
             </CardFooter>
           </Card>
         ))}

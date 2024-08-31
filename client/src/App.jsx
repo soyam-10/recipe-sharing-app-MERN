@@ -8,6 +8,7 @@ import Footer from "./components/footer";
 import Recipes from "./components/recipes";
 import Profile from "./components/profile";
 import About from "./components/about";
+import RecipePage from "./components/recipePage";
 
 function App() {
   const location = useLocation();
@@ -24,6 +25,7 @@ function App() {
         <Route path="/recipes" element={<Recipes />} />
         <Route path="/about" element={<About />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/recipes/:id" element={<RecipePage />} /> {/* Route for recipe details */}
       </Routes>
       <Footer />
     </>

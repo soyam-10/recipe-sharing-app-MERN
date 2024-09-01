@@ -1,15 +1,26 @@
 import { useState, useEffect } from "react";
-import { Clock, Printer, Share2, Star } from "lucide-react";
+import { Clock, Printer, Share2, Star, StarIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardFooter,
+} from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useParams } from "react-router-dom";
 import Loading from "./loading";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function RecipePage() {
   const { id } = useParams(); // Get recipe ID from URL
   const [recipe, setRecipe] = useState(null);
+  // const [rating, setRating] = useState(1);
   const [userInfo, setUserInfo] = useState(null); // State to store user information
 
   useEffect(() => {
@@ -181,6 +192,53 @@ export default function RecipePage() {
             {averageRating} {averageRating === "No ratings yet" ? "" : "/ 5"}
           </span>
         </h2>
+
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle>Rate and Review</CardTitle>
+            <CardDescription>
+              Share your thoughts on this recipe with a star rating and review.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center gap-2">
+              <Label htmlFor="rating">Rating</Label>
+              <RadioGroup
+                id="rating"
+                defaultValue="3"
+                className="flex items-center gap-2"
+              >
+                {Array.from({ length: 5 }, (_, index) => (
+                  <Label
+                    key={index + 1}
+                    htmlFor={`rating-${index + 1}`}
+                    className="cursor-pointer [&:has(:checked)]:text-primary"
+                  >
+                    <RadioGroupItem
+                      id={`rating-${index + 1}`}
+                      value={(index + 1).toString()}
+                    />
+                    <StarIcon className="w-6 h-6 fill-primary" />
+                  </Label>
+                ))}
+              </RadioGroup>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="review">Review</Label>
+              <Textarea
+                id="review"
+                placeholder="Share your thoughts on the recipe..."
+                rows={4}
+              />
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button type="submit" className="w-full">
+              Submit
+            </Button>
+          </CardFooter>
+        </Card>
+
         <Button className="w-full mb-4">Review</Button>
         <div className="space-y-4">
           {reviews.length ? (

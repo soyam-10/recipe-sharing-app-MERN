@@ -18,8 +18,8 @@ router.get("/", getRecipes);
 router.get("/:id", getRecipeByID);
 router.put("/:id", authenticate("cook", "admin"), updateRecipeByID);
 router.delete("/:id", authenticate("cook", "admin"), deleteRecipeByID);
-router.post("/:id/rating", addRating);
-router.post("/:id/review", addReview);
+router.put("/:id/rating", addRating);
+router.put("/:id/review", addReview);
 router.get("/user/:userId", getRecipesByUser);
 router.delete('/user/:userId', authenticate("admin"), deleteRecipesByUser);
 

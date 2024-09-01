@@ -64,6 +64,19 @@ export default function RecipePage() {
   // Destructure user data
   const { fullName, profilePicture } = userInfo;
 
+  // Calculate the average rating
+  const averageRating = ratings.length
+    ? (
+        ratings.reduce((acc, rating) => acc + rating.rating, 0) / ratings.length
+      ).toFixed(1)
+    : "No ratings yet";
+
+  // Function to get the rating for a specific review
+  const getRatingForReview = (userId) => {
+    const ratingEntry = ratings.find((rating) => rating.user === userId);
+    return ratingEntry ? ratingEntry.rating : null;
+  };
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="flex justify-between items-center mb-6">
@@ -111,6 +124,8 @@ export default function RecipePage() {
       </div>
       <p className="text-muted-foreground mb-8">{description}</p>
       <Separator className="my-8 p-0.5" />{" "}
+      <p className="text-muted-foreground mb-8">{description}</p>
+      <Separator className="my-8 p-0.5" />{" "}
       {/* Shadcn Separator for visual separation */}
       <div className="mb-6">
         <h2 className="text-2xl font-semibold mb-4">Tags</h2>
@@ -134,70 +149,13 @@ export default function RecipePage() {
         </p>
       </div>
       <Separator className="my-8 p-0.5" />{" "}
-      {/* Shadcn Separator for visual separation */}
-      <div className="grid md:grid-cols-2 gap-8 mb-8">
-        <div>
-          <h2 className="text-2xl font-semibold mb-4">Ingredients</h2>
-          <ol className="list-decimal list-inside space-y-2">
-            {ingredients.map((ingredient, index) => (
-              <li key={index}>{ingredient}</li>
-            ))}
-          </ol>
-        </div>
-
-        <div>
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-semibold">Reviews</h2>
-            <div className="flex items-center">
-              <Star className="w-5 h-5 text-yellow-400 fill-current" />
-              <span className="ml-1 font-semibold">
-                {ratings.length
-                  ? (
-                      ratings.reduce((a, b) => a + b, 0) / ratings.length
-                    ).toFixed(1)
-                  : "No ratings yet"}
-              </span>
-            </div>
-          </div>
-          <Button className="w-full mb-4">Review</Button>
-          <div className="space-y-4">
-            {reviews.length ? (
-              reviews.map((review) => (
-                <Card key={review._id}>
-                  <CardContent className="p-4">
-                    <div className="flex items-center mb-2">
-                      <Avatar className="h-8 w-8 mr-2">
-                        <AvatarFallback>{review.user[0]}</AvatarFallback>{" "}
-                        {/* Placeholder for reviewer's initials */}
-                      </Avatar>
-                      <div>
-                        <p className="font-semibold">{review.user}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {new Date(review.createdAt).toLocaleDateString()}
-                        </p>
-                      </div>
-                      <div className="ml-auto flex">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <Star
-                            key={star}
-                            className={`w-4 h-4 ${
-                              star <= review.rating
-                                ? "text-yellow-400 fill-current"
-                                : "text-gray-300"
-                            }`}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                    <p className="text-sm">{review.comment}</p>
-                  </CardContent>
-                </Card>
-              ))
-            ) : (
-              <p>No reviews yet.</p>
-            )}
-          </div>
-        </div>
+      <div>
+        <h2 className="text-2xl font-semibold mb-4">Ingredients</h2>
+        <ol className="list-decimal list-inside space-y-2">
+          {ingredients.map((ingredient, index) => (
+            <li key={index}>{ingredient}</li>
+          ))}
+        </ol>
       </div>
       <Separator className="my-8 p-0.5" />{" "}
       {/* Shadcn Separator for visual separation */}
@@ -213,6 +171,51 @@ export default function RecipePage() {
               )
           )}
         </ul>
+      </div>
+      <Separator className="my-8 p-0.5" />{" "}
+      {/* Shadcn Separator for visual separation */}
+      <div className="mb-6">
+        <h2 className="text-2xl font-semibold mb-4">
+          Reviews
+          <span className="ml-4 text-xl font-semibold text-yellow-600">
+            {averageRating} {averageRating === "No ratings yet" ? "" : "/ 5"}
+          </span>
+        </h2>
+        <Button className="w-full mb-4">Review</Button>
+        <div className="space-y-4">
+          {reviews.length ? (
+            reviews.map((review) => (
+              <Card key={review._id}>
+                <CardContent className="p-4">
+                  <div className="flex items-center mb-2">
+                    <Avatar className="h-8 w-8 mr-2">
+                      <AvatarFallback>{review.user[0]}</AvatarFallback>{" "}
+                      {/* Placeholder for reviewer's initials */}
+                    </Avatar>
+                    <div>
+                      <p className="font-semibold">{review.user}</p>
+                    </div>
+                    <div className="ml-auto flex">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star
+                          key={star}
+                          className={`w-4 h-4 ${
+                            star <= getRatingForReview(review.user)
+                              ? "text-yellow-400 fill-current"
+                              : "text-gray-300"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  <p className="text-sm">{review.review}</p>
+                </CardContent>
+              </Card>
+            ))
+          ) : (
+            <p>No reviews yet.</p>
+          )}
+        </div>
       </div>
     </div>
   );

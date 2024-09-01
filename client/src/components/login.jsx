@@ -21,7 +21,7 @@ export default function Login() {
 
     try {
       const response = await api.post("/users/login", { email, password });
-      console.log(response.data); // Handle login response
+      console.table(response.data); // Handle login response
 
       // Save session data to localStorage
       localStorage.setItem("session", JSON.stringify(response.data));

@@ -195,6 +195,22 @@ const getRecipesByUser = async (req, res) => {
   }
 };
 
+// DELETE request to delete all recipes uploaded by a specific user
+const deleteRecipesByUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    // Find and delete all recipes by the user
+    const result = await recipeModel.deleteMany({ user: userId });
+    if (result.deletedCount === 0) {
+      return res.status(200).json({ success: true, message: "No recipes found for this user" });
+    }
+    res.status(200).json({ success: true, message: `${result.deletedCount} recipe(s) deleted` });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+
 
 module.exports = {
   createRecipe,
@@ -206,4 +222,5 @@ module.exports = {
   addRating,
   addReview,
   getRecipesByUser,
+  deleteRecipesByUser,
 };

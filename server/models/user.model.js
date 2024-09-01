@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema({
   profilePicture: { type: String },
   bio: { type: String },
   role: { type: String, enum: ["user", "cook", "admin"], default: "user" },
-});
+  joinedAt: { type: Date, default: Date.now },
+},{ timestamps: true });
 
 module.exports = mongoose.model("User", userSchema);

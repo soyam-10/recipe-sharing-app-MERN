@@ -86,6 +86,7 @@ const loginUser = async (req, res) => {
         profilePicture: user.profilePicture,
         bio: user.bio,
         id: user.id,
+        role: user.role,
       },
     });
   } catch (err) {
@@ -198,6 +199,26 @@ const updatePasswordByID = async (req, res) => {
   }
 };
 
+// DELETE request to delete a user by ID
+const deleteUserByID = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedUser = await User.findByIdAndDelete(id);
+
+    if (!deletedUser) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "User deleted successfully",
+      user: deletedUser,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 
 module.exports = {
   registerUser,
@@ -207,4 +228,5 @@ module.exports = {
   getUserByID,
   updateUserByID,
   updatePasswordByID,
+  deleteUserByID,
 };

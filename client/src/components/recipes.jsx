@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -19,16 +19,25 @@ export default function Recipes() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate(); // Initialize useNavigate
+  const getUserSession = useCallback(() => {
+    const session = localStorage.getItem("session");
+    return session ? JSON.parse(session) : null;
+  }, []);
+  const session = getUserSession();
 
   useEffect(() => {
     const fetchRecipes = async () => {
       try {
-        const response = await fetch("http://localhost:5000/recipes"); // Adjust the URL to match your backend route
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
+        if (!session) {
+          return navigate("/login");
+        } else {
+          const response = await fetch("http://localhost:5000/recipes"); // Adjust the URL to match your backend route
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          const data = await response.json();
+          setRecipes(data.recipes);
         }
-        const data = await response.json();
-        setRecipes(data.recipes);
       } catch (error) {
         setError(error);
       } finally {
@@ -37,7 +46,7 @@ export default function Recipes() {
     };
 
     fetchRecipes();
-  }, []);
+  }, [navigate, session]);
 
   const indexOfLastRecipe = currentPage * ITEMS_PER_PAGE;
   const indexOfFirstRecipe = indexOfLastRecipe - ITEMS_PER_PAGE;

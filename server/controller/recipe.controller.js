@@ -187,7 +187,7 @@ const getRecipesByUser = async (req, res) => {
     const { userId } = req.params;
     const recipes = await recipeModel.find({ user: userId });
     if (recipes.length === 0) {
-      return res.status(404).json({ success: false, message: "No recipes found for this user" });
+      return res.status(200).json({ success: true, message: "No recipes found for this user", recipes: [] });
     }
     res.status(200).json({ success: true, totalRecipes: recipes.length, recipes });
   } catch (err) {

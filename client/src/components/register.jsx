@@ -11,6 +11,7 @@ const Register = () => {
   const [fullName, setFullName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [role, setRole] = useState("user"); // Default to "user"
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
@@ -24,10 +25,15 @@ const Register = () => {
     }
 
     try {
-      const response = await api.post("/users/register", { fullName, email, password });
+      const response = await api.post("/users/register", {
+        fullName,
+        email,
+        password,
+        role,
+      });
       console.log(response.data); // Handle registration response
       const userFullName = response.data.user.fullName;
-      toast.success(`Sign Up success ${userFullName}. You may Sign In now.`)
+      toast.success(`Sign Up success ${userFullName}. You may Sign In now.`);
       navigate("/login"); // Redirect to login page after successful registration
     } catch (err) {
       setError("Registration failed. Please try again.");
@@ -93,6 +99,18 @@ const Register = () => {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
                 />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="role">Role</Label>
+                <select
+                  id="role"
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                  className="p-2 border rounded"
+                >
+                  <option value="user">User</option>
+                  <option value="cook">Cook</option>
+                </select>
               </div>
               <Button type="submit" className="w-full">
                 Register

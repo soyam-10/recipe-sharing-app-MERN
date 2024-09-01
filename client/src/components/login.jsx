@@ -29,8 +29,13 @@ export default function Login() {
       // Set session in state
       setSession(response.data);
 
-      toast.success(`Login success ${response.data.user.fullName}`);
-      navigate("/"); // Redirect to home page on successful login
+      if (response.data.user.role == "admin") {
+        toast.success(`Welcome ADMIN ${response.data.user.fullName}`);
+        navigate("/adminDashboard");
+      } else {
+        toast.success(`Login success ${response.data.user.fullName}`);
+        navigate("/"); // Redirect to home page on successful login
+      }
     } catch (err) {
       setError("Invalid credentials. Please try again.");
       console.error(err);

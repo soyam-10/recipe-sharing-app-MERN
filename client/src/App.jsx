@@ -1,6 +1,6 @@
 import { Routes, Route, useLocation } from "react-router-dom";
 import Home from "./components/home";
-import Register from "./components/Register";
+import Register from "./components/register";
 import { Toaster } from "sonner";
 import Navbar from "./components/navbar";
 import Login from "./components/login";
@@ -9,6 +9,8 @@ import Recipes from "./components/recipes";
 import Profile from "./components/profile";
 import About from "./components/about";
 import RecipePage from "./components/recipePage";
+import RecipeManagement from "./components/recipeManagement";
+import AdminPanel from "./components/AdminPanel";
 
 function App() {
   const location = useLocation();
@@ -26,6 +28,8 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/recipes/:id" element={<RecipePage />} />
+        <Route path="/recipeManagement" element={<RecipeManagement />} />
+        <Route path="/adminDashboard" element={<AdminPanel />} />
       </Routes>
       <Footer />
     </>

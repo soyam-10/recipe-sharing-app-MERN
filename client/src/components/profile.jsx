@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Camera, Mail, User, FileText } from "lucide-react";
 import Loading from "./loading";
+import { Link } from "react-router-dom";
 
 export default function Profile() {
   const [user, setUser] = useState(null);
@@ -39,13 +40,6 @@ export default function Profile() {
         const data = await response.json();
         if (data.success) {
           setUser(data.user || []);
-          setProfile((prev) => ({
-            ...prev,
-            fullName: data.user.fullName || "",
-            email: data.user.email || "",
-            profilePicture: data.user.profilePicture || "",
-            bio: data.user.bio || "",
-          }));
         }
         setLoading(false);
       } catch (error) {
@@ -65,8 +59,10 @@ export default function Profile() {
 
   const validatePasswordForm = () => {
     const newErrors = {};
-    if (!profile.oldPassword) newErrors.oldPassword = "Old password is required";
-    if (!profile.newPassword) newErrors.newPassword = "New password is required";
+    if (!profile.oldPassword)
+      newErrors.oldPassword = "Old password is required";
+    if (!profile.newPassword)
+      newErrors.newPassword = "New password is required";
     return Object.keys(newErrors).length === 0 ? null : newErrors;
   };
 
@@ -188,6 +184,16 @@ export default function Profile() {
         </CardContent>
       </Card>
 
+      <div className="flex justify-center items-center m-2">
+        {session.user.role == "cook" ? (
+            <Button className="">
+              <Link to="/recipeManagement">Manage your Recipes</Link>
+            </Button>
+        ) : (
+          ""
+        )}
+      </div>
+
       <Card>
         <CardHeader>
           <CardTitle>Edit Your Profile</CardTitle>
@@ -202,7 +208,7 @@ export default function Profile() {
               <Input
                 id="fullName"
                 name="fullName"
-                value={profile.fullName || ""}
+                value={profile.fullName}
                 onChange={handleChange}
                 required
                 className="transition-all duration-300 focus:ring-2 focus:ring-primary"
@@ -222,7 +228,7 @@ export default function Profile() {
                 id="email"
                 name="email"
                 type="email"
-                value={profile.email || ""}
+                value={profile.email}
                 onChange={handleChange}
                 required
                 className="transition-all duration-300 focus:ring-2 focus:ring-primary"
@@ -242,7 +248,7 @@ export default function Profile() {
                 id="profilePicture"
                 name="profilePicture"
                 type="url"
-                value={profile.profilePicture || ""}
+                value={profile.profilePicture}
                 onChange={handleChange}
                 className="transition-all duration-300 focus:ring-2 focus:ring-primary"
                 placeholder="Enter profile picture URL"
@@ -257,7 +263,7 @@ export default function Profile() {
               <Textarea
                 id="bio"
                 name="bio"
-                value={profile.bio || ""}
+                value={profile.bio}
                 onChange={handleChange}
                 rows={4}
                 className="transition-all duration-300 focus:ring-2 focus:ring-primary"

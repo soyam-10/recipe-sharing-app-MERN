@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import {
   ChefHat,
   MinusCircle,
   PlusCircle,
   Clock,
   Utensils,
-  Tag,
+  ChevronsLeft,
 } from "lucide-react";
 import {
   Card,
@@ -20,7 +20,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-// import { Separator } from "@/components/ui/separator";
 import {
   Dialog,
   DialogContent,
@@ -31,48 +30,79 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
+import { Link, useNavigate } from "react-router-dom";
+
+const initialRecipeState = {
+  title: "",
+  recipePicture: "",
+  cookTime: "",
+  description: "",
+  ingredients: [""],
+  instructions: "",
+  tags: [""],
+  category: "",
+  user: "",
+};
 
 export default function RecipeManagement() {
+  const navigate = useNavigate();
+  const [recipes, setRecipes] = useState([]);
+  const [recipe, setRecipe] = useState(initialRecipeState);
+  const [errors, setErrors] = useState({});
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
   const getUserSession = useCallback(() => {
     const session = localStorage.getItem("session");
     return session ? JSON.parse(session) : null;
   }, []);
-  const session = getUserSession();
-  const [recipes, setRecipes] = useState([]);
-  const [recipe, setRecipe] = useState({
-    title: "",
-    recipePicture: "",
-    cookTime: "",
-    description: "",
-    ingredients: [""],
-    instructions: "",
-    tags: [""],
-    category: "",
-    user: session.user.id,
-  });
-  const [errors, setErrors] = useState({});
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const session = useMemo(() => getUserSession(), [getUserSession]);
+
+  useEffect(() => {
+    if (session?.user?.id) {
+      setRecipe((prev) => ({ ...prev, user: session.user.id }));
+    }
+  }, [session]);
+
+  useEffect(() => {
+    if (session?.user?.role !== "cook" && session?.user?.role !== "admin") {
+      toast.error("You are not authorized to view this page.");
+      navigate("/login");
+      return;
+    }
+  }, [session, navigate]);
 
   const fetchRecipes = useCallback(async () => {
-    if (!session || !session.user || !session.token) {
+    if (!session?.user?.id || !session?.token) {
       toast.error("Please log in to view your recipes.");
+      navigate("/login");
       return;
     }
 
+    setIsLoading(true);
     try {
       const response = await fetch(
         `http://localhost:5000/recipes/user/${session.user.id}`
       );
-      if (response.status === 404) {
-        return <div>No recipes added by you !</div>;
+
+      const responseBody = await response.json();
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-      const data = await response.json();
-      setRecipes(data.recipes || []);
+
+      if (responseBody.recipes.length === 0) {
+        setRecipes([]);
+      } else {
+        setRecipes(responseBody.recipes);
+      }
     } catch (error) {
       console.error("Error fetching recipe data:", error);
       toast.error("Failed to fetch recipes. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
-  }, [session]);
+  }, [navigate, session]);
 
   useEffect(() => {
     fetchRecipes();
@@ -80,9 +110,11 @@ export default function RecipeManagement() {
 
   const handleDeleteRecipe = useCallback(
     async (id) => {
-      const session = getUserSession();
-      if (!session || !session.token) {
-        toast.error("Please log in to delete recipes.");
+      if (!session?.token) {
+        if (session.user.role !== "admin" || session.user.role !== "cook") {
+          toast.error("You are not authorized to delete recipes.");
+        }
+        toast.error("You are not authorized to delete recipes.");
         return;
       }
 
@@ -97,11 +129,10 @@ export default function RecipeManagement() {
         setRecipes((prev) => prev.filter((recipe) => recipe._id !== id));
         toast.success("Recipe deleted successfully.");
       } catch (error) {
-        console.error("Error deleting recipe:", error);
-        toast.error("Failed to delete recipe. Please try again.");
+        toast.error("Failed to delete recipe. Please try again.", error);
       }
     },
-    [getUserSession]
+    [session]
   );
 
   const handleChange = (e) => {
@@ -109,34 +140,22 @@ export default function RecipeManagement() {
     setRecipe((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleIngredientChange = (index, value) => {
-    const newIngredients = [...recipe.ingredients];
-    newIngredients[index] = value;
-    setRecipe((prev) => ({ ...prev, ingredients: newIngredients }));
+  const handleArrayChange = (index, value, field) => {
+    setRecipe((prev) => ({
+      ...prev,
+      [field]: prev[field].map((item, i) => (i === index ? value : item)),
+    }));
   };
 
-  const addIngredient = () => {
-    setRecipe((prev) => ({ ...prev, ingredients: [...prev.ingredients, ""] }));
+  const addArrayItem = (field) => {
+    setRecipe((prev) => ({ ...prev, [field]: [...prev[field], ""] }));
   };
 
-  const removeIngredient = (index) => {
-    const newIngredients = recipe.ingredients.filter((_, i) => i !== index);
-    setRecipe((prev) => ({ ...prev, ingredients: newIngredients }));
-  };
-
-  const handleTagChange = (index, value) => {
-    const newTags = [...recipe.tags];
-    newTags[index] = value;
-    setRecipe((prev) => ({ ...prev, tags: newTags }));
-  };
-
-  const addTag = () => {
-    setRecipe((prev) => ({ ...prev, tags: [...prev.tags, ""] }));
-  };
-
-  const removeTag = (index) => {
-    const newTags = recipe.tags.filter((_, i) => i !== index);
-    setRecipe((prev) => ({ ...prev, tags: newTags }));
+  const removeArrayItem = (index, field) => {
+    setRecipe((prev) => ({
+      ...prev,
+      [field]: prev[field].filter((_, i) => i !== index),
+    }));
   };
 
   const validateForm = () => {
@@ -150,74 +169,71 @@ export default function RecipeManagement() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formErrors = validateForm();
-    if (!formErrors) {
-      const session = getUserSession();
-      if (!session || !session.token) {
-        toast.error("Please log in to add recipes.");
-        return;
-      }
-
-      try {
-        const response = await fetch("http://localhost:5000/recipes", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${session.token}`,
-          },
-          body: JSON.stringify(recipe),
-        });
-        if (!response.ok) throw new Error("Failed to add recipe");
-        const data = await response.json();
-        setRecipes((prev) => [...prev, data.newRecipe]);
-        setRecipe({
-          title: "",
-          recipePicture: "",
-          cookTime: "",
-          description: "",
-          ingredients: [""],
-          instructions: "",
-          tags: [""],
-          category: "",
-          user: session.user.id,
-        });
-        setErrors({});
-        setIsDialogOpen(false);
-        toast.success("Recipe added successfully.");
-        fetchRecipes();
-      } catch (error) {
-        console.error("Error submitting recipe:", error);
-        toast.error("Failed to add recipe. Please try again.");
-      }
-    } else {
+    if (formErrors) {
       setErrors(formErrors);
+      return;
+    }
+
+    if (!session?.token) {
+      toast.error("Please log in to add recipes.");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:5000/recipes", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.token}`,
+        },
+        body: JSON.stringify(recipe),
+      });
+      if (response.status === 403) {
+        throw new Error("Forbidden. You are not authorized to add recipes.");
+      }
+      if (!response.ok) {
+        throw new Error("Failed to add recipe");
+      }
+      const data = await response.json();
+      setRecipes((prev) => [...prev, data.newRecipe]);
+      setRecipe({ ...initialRecipeState, user: session.user.id });
+      setErrors({});
+      setIsDialogOpen(false);
+      toast.success("Recipe added successfully.");
+    } catch (error) {
+      toast.error(error.message || "Failed to add recipe. Please try again.");
     }
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-4xl font-bold mb-4">Recipe Management</h1>
-      <p className="text-muted-foreground mb-8">
-        View, edit, and manage your recipes.
-      </p>
+    <>
+      <div className="container mx-auto px-4 py-8">
+        <Link to="/profile">
+          <Button>
+            <ChevronsLeft size={40} strokeWidth={3} />
+            <span>Back to Profile</span>
+          </Button>
+        </Link>
+        <h1 className="text-4xl font-bold mb-4">Recipe Management</h1>
+        <p className="text-muted-foreground mb-8">
+          View, edit, and manage your recipes.
+        </p>
 
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-semibold">Your Recipes</h2>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>Add new recipe</Button>
-          </DialogTrigger>
-          <DialogContent
-            className="max-w-4xl"
-            aria-labelledby="dialog-title"
-            aria-describedby="dialog-description"
-          >
-            <DialogHeader>
-              <DialogTitle className="text-3xl font-bold flex items-center">
-                <ChefHat className="mr-2" /> Create a New Recipe
-              </DialogTitle>
-              <DialogDescription>
-                Fill up the details to Add new recipe.
-              </DialogDescription>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-semibold">Your Recipes</h2>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button>Add new recipe</Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-4xl">
+              <DialogHeader>
+                <DialogTitle className="text-3xl font-bold flex items-center">
+                  <ChefHat className="mr-2" /> Create a New Recipe
+                </DialogTitle>
+                <DialogDescription>
+                  Fill up the details to add a new recipe.
+                </DialogDescription>
+              </DialogHeader>
               <ScrollArea className="max-h-[80vh] overflow-y-auto">
                 <form onSubmit={handleSubmit} className="space-y-6 p-6">
                   <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -282,7 +298,7 @@ export default function RecipeManagement() {
                         value={recipe.cookTime}
                         onChange={handleChange}
                         className="mt-1"
-                        placeholder="Enter cook time"
+                        placeholder="Enter cook time in minutes"
                       />
                     </div>
                     <div>
@@ -298,7 +314,7 @@ export default function RecipeManagement() {
                         value={recipe.category}
                         onChange={handleChange}
                         className="mt-1"
-                        placeholder="Enter category (e.g., breakfast)"
+                        placeholder="Enter category"
                       />
                     </div>
                   </div>
@@ -317,31 +333,35 @@ export default function RecipeManagement() {
                       onChange={handleChange}
                       className="mt-1"
                       placeholder="Enter recipe description"
+                      rows="3"
                     />
                   </div>
 
                   <div>
-                    <Label
-                      htmlFor="ingredients"
-                      className="text-lg font-semibold flex items-center"
-                    >
-                      <Utensils className="mr-2" /> Ingredients
-                    </Label>
+                    <Label className="text-lg font-semibold">Ingredients</Label>
                     {recipe.ingredients.map((ingredient, index) => (
-                      <div key={index} className="flex items-center mb-2">
+                      <div
+                        key={index}
+                        className="flex items-center space-x-4 mb-2"
+                      >
                         <Input
+                          type="text"
                           value={ingredient}
                           onChange={(e) =>
-                            handleIngredientChange(index, e.target.value)
+                            handleArrayChange(
+                              index,
+                              e.target.value,
+                              "ingredients"
+                            )
                           }
-                          className="mr-2 flex-grow"
-                          placeholder={`Ingredient ${index + 1}`}
+                          placeholder="Ingredient"
+                          className="flex-grow"
                         />
                         <Button
                           type="button"
-                          onClick={() => removeIngredient(index)}
+                          onClick={() => removeArrayItem(index, "ingredients")}
                           variant="outline"
-                          className="text-red-500"
+                          size="sm"
                         >
                           <MinusCircle />
                         </Button>
@@ -349,9 +369,10 @@ export default function RecipeManagement() {
                     ))}
                     <Button
                       type="button"
-                      onClick={addIngredient}
+                      onClick={() => addArrayItem("ingredients")}
                       variant="outline"
-                      className="text-green-500"
+                      size="sm"
+                      className="mt-2"
                     >
                       <PlusCircle /> Add Ingredient
                     </Button>
@@ -365,9 +386,9 @@ export default function RecipeManagement() {
                   <div>
                     <Label
                       htmlFor="instructions"
-                      className="text-lg font-semibold"
+                      className="text-lg font-semibold flex items-center"
                     >
-                      Instructions
+                      <Utensils className="mr-2" /> Instructions
                     </Label>
                     <Textarea
                       id="instructions"
@@ -376,31 +397,31 @@ export default function RecipeManagement() {
                       onChange={handleChange}
                       className="mt-1"
                       placeholder="Enter cooking instructions"
+                      rows="5"
                     />
                   </div>
 
                   <div>
-                    <Label
-                      htmlFor="tags"
-                      className="text-lg font-semibold flex items-center"
-                    >
-                      <Tag className="mr-2" /> Tags
-                    </Label>
+                    <Label className="text-lg font-semibold">Tags</Label>
                     {recipe.tags.map((tag, index) => (
-                      <div key={index} className="flex items-center mb-2">
+                      <div
+                        key={index}
+                        className="flex items-center space-x-4 mb-2"
+                      >
                         <Input
+                          type="text"
                           value={tag}
                           onChange={(e) =>
-                            handleTagChange(index, e.target.value)
+                            handleArrayChange(index, e.target.value, "tags")
                           }
-                          className="mr-2 flex-grow"
-                          placeholder={`Tag ${index + 1}`}
+                          placeholder="Tag"
+                          className="flex-grow"
                         />
                         <Button
                           type="button"
-                          onClick={() => removeTag(index)}
+                          onClick={() => removeArrayItem(index, "tags")}
                           variant="outline"
-                          className="text-red-500"
+                          size="sm"
                         >
                           <MinusCircle />
                         </Button>
@@ -408,55 +429,83 @@ export default function RecipeManagement() {
                     ))}
                     <Button
                       type="button"
-                      onClick={addTag}
+                      onClick={() => addArrayItem("tags")}
                       variant="outline"
-                      className="text-green-500"
+                      size="sm"
+                      className="mt-2"
                     >
                       <PlusCircle /> Add Tag
                     </Button>
                   </div>
 
-                  <Button type="submit" className="w-full mt-6">
-                    Save Recipe
-                  </Button>
+                  <div className="flex justify-end space-x-4">
+                    <Button
+                      type="button"
+                      onClick={() => setIsDialogOpen(false)}
+                      variant="outline"
+                    >
+                      Cancel
+                    </Button>
+                    <Button type="submit">
+                      {isLoading ? "Submitting" : "Submit"}
+                    </Button>
+                  </div>
                 </form>
               </ScrollArea>
-            </DialogHeader>
-          </DialogContent>
-        </Dialog>
-      </div>
+            </DialogContent>
+          </Dialog>
+        </div>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {recipes ? (
-          recipes.map((recipe) => (
-            <Card key={recipe._id} className="border border-gray-200">
-              <CardHeader>
-                <CardTitle>{recipe.title}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <img
-                  src={recipe.recipePicture}
-                  alt={recipe.title}
-                  className="w-full h-40 object-cover"
-                />
-                <p className="mt-2">{recipe.description}</p>
-              </CardContent>
-              <CardFooter>
-                <Button
-                  onClick={() => handleDeleteRecipe(recipe._id)}
-                  variant="destructive"
-                >
-                  Delete
-                </Button>
-              </CardFooter>
-            </Card>
-          ))
-        ) : (
-          <div>
-            <p>You have not added any recipe yet.</p>
+        {isLoading ? (
+          <p>Loading...</p>
+        ) : recipes.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            {recipes.map((recipe) => (
+              <Card key={recipe._id} className="border border-gray-200 p-4">
+                <CardHeader>
+                  <CardTitle className="text-xl font-semibold">
+                    {recipe.title}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <img
+                    src={recipe.recipePicture}
+                    alt={recipe.title}
+                    className="w-full h-48 object-cover mb-4"
+                  />
+                  <p className="mb-2">{recipe.description}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {recipe.cookTime} minutes
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {recipe.category}
+                  </p>
+                </CardContent>
+                <CardFooter>
+                  <div className="flex justify-between items-center">
+                    <Button
+                      onClick={() => handleDeleteRecipe(recipe._id)}
+                      variant="destructive"
+                      size="sm"
+                    >
+                      Delete
+                    </Button>
+                    <Button
+                      onClick={() => navigate(`/recipes/${recipe._id}`)}
+                      variant="outline"
+                      size="sm"
+                    >
+                      View Recipe
+                    </Button>
+                  </div>
+                </CardFooter>
+              </Card>
+            ))}
           </div>
+        ) : (
+          <p>No recipes found.</p>
         )}
       </div>
-    </div>
+    </>
   );
 }

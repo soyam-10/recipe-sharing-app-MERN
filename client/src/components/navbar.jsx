@@ -34,6 +34,12 @@ export default function Navbar() {
     navigate("/login");
   };
 
+  const navigateToProfile = () => {
+    navigate("/profile");
+  };
+  const navigateToAdmin = () => {
+    navigate("/adminDashboard");
+  };
   return (
     <header className="sticky top-0 z-50 w-full bg-background shadow-sm">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
@@ -77,21 +83,32 @@ export default function Navbar() {
                   <Avatar className="h-8 w-8">
                     <AvatarImage
                       src={
-                        session.user.profilePicture || "https://github.com/shadcn.png"
+                        session.user.profilePicture ||
+                        "https://github.com/shadcn.png"
                       }
                       alt={session.user.fullName}
                     />
-                    <AvatarFallback>{(session.user.fullName).toUpperCase()}</AvatarFallback>
+                    <AvatarFallback>
+                      {session.user.fullName.toUpperCase()}
+                    </AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem>
+                <DropdownMenuItem className="font-semibold">
                   {session.user.fullName.toUpperCase()}
                 </DropdownMenuItem>
-                <DropdownMenuItem>Profile</DropdownMenuItem>
-                <DropdownMenuItem>Settings</DropdownMenuItem>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={navigateToProfile}>
+                  Profile
+                </DropdownMenuItem>
+                {session.user.role === "admin" ? (
+                  <DropdownMenuItem onClick={navigateToAdmin}>
+                    Dashboard
+                  </DropdownMenuItem>
+                ) : (
+                  ""
+                )}
                 <DropdownMenuItem onClick={handleLogout}>
                   Logout
                 </DropdownMenuItem>

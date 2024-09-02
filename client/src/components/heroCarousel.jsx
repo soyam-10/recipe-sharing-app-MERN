@@ -73,7 +73,7 @@ export default function HeroCarousel() {
                 key={index}
                 className="h-[550px] md:h-fit sm:h-[400px] xs:h-[300px]"
               >
-                <Card className="w-full h-full max-w-full mx-auto max-h-full overflow-hidden backdrop-blur-3xl bg-white/80 hover:backdrop-blur-sm rounded-3xl border-2 border-gray-400">
+                <Card className="w-full h-full max-w-full mx-auto max-h-full overflow-hidden backdrop-blur-2xl bg-white/40 hover:backdrop-blur-sm rounded-3xl border-2 border-gray-400">
                   <CardContent className="p-0 flex flex-col md:flex-row h-full">
                     <div className="flex-1 p-3 md:p-8 flex flex-col justify-between item">
                       <div className="">

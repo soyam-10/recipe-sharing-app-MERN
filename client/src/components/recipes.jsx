@@ -84,8 +84,8 @@ export default function Recipes() {
             </CardHeader>
             <CardContent className="flex-grow p-4">
               <CardTitle className="text-xl mb-2">{recipe.title}</CardTitle>
-              <p className="text-gray-600 mb-4">{recipe.description}</p>
-              <div className="flex justify-between text-sm text-gray-500">
+              <p className="text-black mb-4">{recipe.description}</p>
+              <div className="flex justify-between text-sm text-black">
                 <span className="flex items-center">
                   <Clock className="w-4 h-4 mr-1" />
                   {recipe.cookTime} Min

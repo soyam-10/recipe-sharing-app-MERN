@@ -7,7 +7,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Clock, Utensils, ChevronLeft, ChevronRight, Heart } from "lucide-react";
+import {
+  Clock,
+  Utensils,
+  ChevronLeft,
+  ChevronRight,
+  Heart,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Loading from "./loading";
 
@@ -70,11 +76,14 @@ export default function Recipes() {
   if (error) return <div>Error: {error.message}</div>;
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8 text-center">Our Recipes</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {currentRecipes.map((recipe) => (
-          <Card key={recipe._id} className="flex flex-col backdrop-blur-2xl bg-white/20">
+          <Card
+            key={recipe._id}
+            className="flex flex-col backdrop-blur-2xl bg-white/20"
+          >
             <CardHeader className="p-0">
               <img
                 src={recipe.recipePicture}
@@ -84,8 +93,8 @@ export default function Recipes() {
             </CardHeader>
             <CardContent className="flex-grow p-4">
               <CardTitle className="text-xl mb-2">{recipe.title}</CardTitle>
-              <p className="text-gray-600 mb-4">{recipe.description}</p>
-              <div className="flex justify-between text-sm text-gray-500">
+              <p className="text-black mb-4">{recipe.description}</p>
+              <div className="flex justify-between text-sm text-black">
                 <span className="flex items-center">
                   <Clock className="w-4 h-4 mr-1" />
                   {recipe.cookTime} Min

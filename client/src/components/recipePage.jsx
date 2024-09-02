@@ -65,7 +65,7 @@ export default function RecipePage() {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${session.token}`
+          Authorization: `Bearer ${session.token}`,
         },
         body: JSON.stringify({ user, rating: parseInt(rating) }),
       });
@@ -75,7 +75,7 @@ export default function RecipePage() {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${session.token}`
+          Authorization: `Bearer ${session.token}`,
         },
         body: JSON.stringify({ user, review }),
       });
@@ -138,7 +138,7 @@ export default function RecipePage() {
 
   return (
     <>
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="container mx-auto px-4 text-white py-8 max-w-4xl">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-4xl font-bold">{title}</h1>
           <div className="flex space-x-2">
@@ -161,7 +161,7 @@ export default function RecipePage() {
           </Avatar>
           <div>
             <p className="font-semibold">{fullName}</p>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm">
               Created on: {new Date(createdAt).toLocaleDateString()}
             </p>
           </div>
@@ -181,7 +181,7 @@ export default function RecipePage() {
             />
           </div>
         </div>
-        <p className="text-muted-foreground mb-8">{description}</p>
+        <p className="mb-8">{description}</p>
         <Separator className="my-8 p-0.5" />
         <div className="mb-6">
           <h2 className="text-2xl font-semibold mb-4">Tags</h2>
@@ -227,61 +227,62 @@ export default function RecipePage() {
           </ul>
         </div>
         <Separator className="my-8 p-0.5" />
-        <div className="mb-6">
+        <div className="mb-6 text-center">
           <h2 className="text-2xl font-semibold mb-4">
-            Reviews
+            Total Ratings
             <span className="ml-4 text-xl font-semibold text-yellow-500">
-              {averageRating} {averageRating === "No ratings yet" ? "" : "/ 5"}
+              {averageRating} {averageRating === "No ratings yet" ? "Not rated yet" : "/ 5"}
             </span>
           </h2>
-
-          <Card className="w-full max-w-md">
-            <CardHeader>
-              <CardTitle>Rate and Review</CardTitle>
-              <CardDescription>
-                Share your thoughts on this recipe with a star rating and
-                review.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center gap-2">
-                <Label htmlFor="rating">Rating</Label>
-                <RadioGroup
-                  id="rating"
-                  defaultValue={rating}
-                  onValueChange={handleRatingChange}
-                  className="ml-1 flex items-center gap-2"
-                >
-                  {Array.from({ length: 5 }, (_, index) => (
-                    <Label
-                      key={index + 1}
-                      htmlFor={`rating-${index + 1}`}
-                      className="ml-2 cursor-pointer [&:has(:checked)]:text-primary"
-                    >
-                      <RadioGroupItem
-                        id={`rating-${index + 1}`}
-                        value={(index + 1).toString()}
-                        className="text-yellow-500 h-5 w-5"
-                      />
-                      <Star className="h-5 w-5 text-yellow-500 fill-current" />
-                    </Label>
-                  ))}
-                </RadioGroup>
-              </div>
-              <div>
-                <Label htmlFor="review">Review</Label>
-                <Textarea
-                  id="review"
-                  placeholder="Write your review here..."
-                  value={review}
-                  onChange={handleReviewChange}
-                />
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button onClick={submitRatingAndReview}>Submit</Button>
-            </CardFooter>
-          </Card>
+          <div className="flex justify-center items-center">
+            <Card className="w-full max-w-md backdrop-blur-3xl bg-white/20 text-white">
+              <CardHeader>
+                <CardTitle>Rate and Review</CardTitle>
+                <CardDescription className="text-white">
+                  Share your thoughts on this recipe with a star rating and
+                  review.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="rating">Rating</Label>
+                  <RadioGroup
+                    id="rating"
+                    defaultValue={rating}
+                    onValueChange={handleRatingChange}
+                    className="ml-1 flex items-center gap-2"
+                  >
+                    {Array.from({ length: 5 }, (_, index) => (
+                      <Label
+                        key={index + 1}
+                        htmlFor={`rating-${index + 1}`}
+                        className="ml-2 cursor-pointer [&:has(:checked)]:text-primary"
+                      >
+                        <RadioGroupItem
+                          id={`rating-${index + 1}`}
+                          value={(index + 1).toString()}
+                          className="text-yellow-500 h-5 w-5"
+                        />
+                        <Star className="h-5 w-5 text-yellow-500 fill-current" />
+                      </Label>
+                    ))}
+                  </RadioGroup>
+                </div>
+                <div>
+                  <Label htmlFor="review">Review</Label>
+                  <Textarea
+                    id="review"
+                    placeholder="Write your review here..."
+                    value={review}
+                    onChange={handleReviewChange}
+                  />
+                </div>
+              </CardContent>
+              <CardFooter>
+                <Button onClick={submitRatingAndReview}>Submit</Button>
+              </CardFooter>
+            </Card>
+          </div>
         </div>
 
         <Separator className="my-8 p-0.5" />

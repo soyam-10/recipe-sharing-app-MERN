@@ -11,6 +11,7 @@ import About from "./components/about";
 import RecipePage from "./components/recipePage";
 import RecipeManagement from "./components/recipeManagement";
 import AdminPanel from "./components/AdminPanel";
+import GridBg from "./components/gridBg";
 
 function App() {
   const location = useLocation();
@@ -18,20 +19,24 @@ function App() {
 
   return (
     <>
-      <Toaster position="top-center" />
-      {showNavbar && <Navbar />}
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/recipes" element={<Recipes />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/recipes/:id" element={<RecipePage />} />
-        <Route path="/recipeManagement" element={<RecipeManagement />} />
-        <Route path="/adminDashboard" element={<AdminPanel />} />
-      </Routes>
-      <Footer />
+      <div className="relative">
+        <GridBg />
+
+        <Toaster position="top-center" />
+        {showNavbar && <Navbar />}
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/recipes" element={<Recipes />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/recipes/:id" element={<RecipePage />} />
+          <Route path="/recipeManagement" element={<RecipeManagement />} />
+          <Route path="/adminDashboard" element={<AdminPanel />} />
+        </Routes>
+        <Footer />
+      </div>
     </>
   );
 }

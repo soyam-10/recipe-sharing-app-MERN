@@ -74,7 +74,7 @@ export default function Recipes() {
       <h1 className="text-3xl font-bold mb-8 text-center">Our Recipes</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {currentRecipes.map((recipe) => (
-          <Card key={recipe._id} className="flex flex-col">
+          <Card key={recipe._id} className="flex flex-col backdrop-blur-2xl bg-white/20">
             <CardHeader className="p-0">
               <img
                 src={recipe.recipePicture}

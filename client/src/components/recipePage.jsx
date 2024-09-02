@@ -230,7 +230,7 @@ export default function RecipePage() {
         <div className="mb-6">
           <h2 className="text-2xl font-semibold mb-4">
             Reviews
-            <span className="ml-4 text-xl font-semibold text-yellow-600">
+            <span className="ml-4 text-xl font-semibold text-yellow-500">
               {averageRating} {averageRating === "No ratings yet" ? "" : "/ 5"}
             </span>
           </h2>
@@ -250,19 +250,20 @@ export default function RecipePage() {
                   id="rating"
                   defaultValue={rating}
                   onValueChange={handleRatingChange}
-                  className="flex items-center gap-2"
+                  className="ml-1 flex items-center gap-2"
                 >
                   {Array.from({ length: 5 }, (_, index) => (
                     <Label
                       key={index + 1}
                       htmlFor={`rating-${index + 1}`}
-                      className="cursor-pointer [&:has(:checked)]:text-primary"
+                      className="ml-2 cursor-pointer [&:has(:checked)]:text-primary"
                     >
                       <RadioGroupItem
                         id={`rating-${index + 1}`}
                         value={(index + 1).toString()}
+                        className="text-yellow-500 h-5 w-5"
                       />
-                      <Star className="ml-2 h-4 w-4 fill-current" />
+                      <Star className="h-5 w-5 text-yellow-500 fill-current" />
                     </Label>
                   ))}
                 </RadioGroup>
@@ -298,14 +299,14 @@ export default function RecipePage() {
                     <AvatarFallback>{review.user.fullName[0]}</AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="font-semibold">{review.user.fullName}{console.log(review.user._id)}</p>
+                    <p className="font-semibold">{review.user.fullName}</p>
                     <div className="flex items-center">
                       {Array.from(
                         { length: getRatingForReview(review.user._id) || 0 },
                         (_, index) => (
                           <StarIcon
                             key={index}
-                            className="h-4 w-4 text-yellow-600"
+                            className="h-4 w-4 text-yellow-500 fill-current"
                           />
                         )
                       )}

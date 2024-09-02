@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   DropdownMenu,
@@ -9,13 +9,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Flame } from "lucide-react";
+import { Flame, Menu, X } from "lucide-react"; // Import hamburger icons
 import { useAtom } from "jotai";
 import { sessionAtom } from "@/atoms/session";
 
 export default function Navbar() {
   const [session, setSession] = useAtom(sessionAtom);
   const navigate = useNavigate();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
     // Retrieve session from localStorage on mount
@@ -40,6 +41,7 @@ export default function Navbar() {
   const navigateToAdmin = () => {
     navigate("/adminDashboard");
   };
+
   return (
     <header className="sticky top-0 z-50 w-full bg-background shadow-sm">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
@@ -49,7 +51,17 @@ export default function Navbar() {
             <span className="text-lg font-semibold">Hamro Recipe</span>
           </Link>
         </div>
-        <nav className="flex items-center gap-6">
+
+        {/* Hamburger Menu Button for Mobile Screens */}
+        <button
+          className="md:hidden flex items-center justify-center p-2 rounded-md text-gray-600 hover:text-gray-900"
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+        >
+          {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+        </button>
+
+        {/* Navigation Menu for Desktop */}
+        <nav className={`hidden md:flex items-center gap-6`}>
           <Link
             to="/"
             className="text-sm font-medium text-foreground transition-colors hover:text-primary"
@@ -75,7 +87,9 @@ export default function Navbar() {
             Profile
           </Link>
         </nav>
-        <div className="flex items-center gap-2">
+
+        {/* User Menu for Desktop */}
+        <div className="hidden md:flex items-center gap-2">
           {session ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -106,9 +120,7 @@ export default function Navbar() {
                   <DropdownMenuItem onClick={navigateToAdmin}>
                     Dashboard
                   </DropdownMenuItem>
-                ) : (
-                  ""
-                )}
+                ) : null}
                 <DropdownMenuItem onClick={handleLogout}>
                   Logout
                 </DropdownMenuItem>
@@ -121,6 +133,57 @@ export default function Navbar() {
           )}
         </div>
       </div>
+
+      {/* Mobile Menu */}
+      <nav className={`md:hidden ${isMenuOpen ? 'block' : 'hidden'} p-4`}>
+        <Link
+          to="/"
+          className="block text-sm font-medium text-foreground transition-colors hover:text-primary mb-2"
+        >
+          Home
+        </Link>
+        <Link
+          to="/recipes"
+          className="block text-sm font-medium text-foreground transition-colors hover:text-primary mb-2"
+        >
+          Recipes
+        </Link>
+        <Link
+          to="/about"
+          className="block text-sm font-medium text-foreground transition-colors hover:text-primary mb-2"
+        >
+          About
+        </Link>
+        <Link
+          to="/profile"
+          className="block text-sm font-medium text-foreground transition-colors hover:text-primary"
+        >
+          Profile
+        </Link>
+        {session ? (
+          <>
+            
+            {session.user.role === "admin" && (
+              <Link
+                to="/adminDashboard"
+                className="block text-sm font-medium text-foreground transition-colors hover:text-primary mb-2"
+              >
+                Dashboard
+              </Link>
+            )}
+            <button
+              className="block text-sm font-medium text-foreground transition-colors hover:text-primary"
+              onClick={handleLogout}
+            >
+              Logout
+            </button>
+          </>
+        ) : (
+          <Link to="/login">
+            <Button className="w-full">Login</Button>
+          </Link>
+        )}
+      </nav>
     </header>
   );
 }

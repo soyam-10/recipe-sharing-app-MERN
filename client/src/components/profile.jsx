@@ -153,7 +153,7 @@ export default function Profile() {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <Card className="mb-8">
+      <Card className="mb-8 backdrop-blur-2xl bg-white/20">
         <CardHeader className="pb-4">
           <div className="flex items-center space-x-4">
             <Avatar className="w-24 h-24 border-4 border-primary">
@@ -170,15 +170,15 @@ export default function Profile() {
               <CardTitle className="text-3xl font-bold">
                 {user.fullName}
               </CardTitle>
-              <p className="text-muted-foreground">{user.email}</p>
+              <p>{user.email}</p>
               <Badge variant="outline" className="mt-2">
-                {user.role || "Member"}
+                {(user.role || "Member").toUpperCase()}
               </Badge>
             </div>
           </div>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">
+          <p>
             {user.bio || "No bio provided."}
           </p>
         </CardContent>
@@ -194,7 +194,7 @@ export default function Profile() {
         )}
       </div>
 
-      <Card>
+      <Card className="backdrop-blur-2xl bg-white/20">
         <CardHeader>
           <CardTitle>Edit Your Profile</CardTitle>
         </CardHeader>
@@ -278,7 +278,7 @@ export default function Profile() {
         </CardContent>
       </Card>
 
-      <Card className="mt-8">
+      <Card className="mt-8 backdrop-blur-2xl bg-white/20">
         <CardHeader>
           <CardTitle>Change Your Password</CardTitle>
         </CardHeader>

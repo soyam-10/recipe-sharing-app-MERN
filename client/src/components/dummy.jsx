@@ -1,161 +1,145 @@
-import { Badge } from "@/components/ui/badge";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
-import { Clock, ChevronRight, CookingPot } from "lucide-react";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import Loading from "./loading";
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Clock, Utensils, ChevronLeft, ChevronRight, Heart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import Loading from "./loading";
 
-export default function HeroCarousel() {
+const ITEMS_PER_PAGE = 9;
+
+export default function Recipes() {
   const [recipes, setRecipes] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate(); // Initialize useNavigate
+  const getUserSession = useCallback(() => {
+    const session = localStorage.getItem("session");
+    return session ? JSON.parse(session) : null;
+  }, []);
+  const session = getUserSession();
 
   useEffect(() => {
     const fetchRecipes = async () => {
       try {
-        const response = await fetch("http://localhost:5000/recipes"); // Adjust the URL to match your backend route
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
+        if (!session) {
+          return navigate("/login");
+        } else {
+          const response = await fetch("http://localhost:5000/recipes"); // Adjust the URL to match your backend route
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          const data = await response.json();
+          setRecipes(data.recipes);
         }
-        const data = await response.json();
-
-        // Fetch user info for each recipe
-        const recipesWithUserInfo = await Promise.all(
-          data.recipes.map(async (recipe) => {
-            const userResponse = await fetch(
-              `http://localhost:5000/users/${recipe.user}`
-            );
-            if (!userResponse.ok) {
-              throw new Error("Failed to fetch user info");
-            }
-            const userInfo = await userResponse.json();
-            return { ...recipe, userInfo };
-          })
-        );
-
-        setRecipes(recipesWithUserInfo);
       } catch (error) {
         setError(error);
-        toast.error(error.message);
       } finally {
         setLoading(false);
       }
     };
 
     fetchRecipes();
-  }, []);
+  }, [navigate, session]);
 
-  const navigate = useNavigate();
+  const indexOfLastRecipe = currentPage * ITEMS_PER_PAGE;
+  const indexOfFirstRecipe = indexOfLastRecipe - ITEMS_PER_PAGE;
+  const currentRecipes = recipes.slice(indexOfFirstRecipe, indexOfLastRecipe);
+  const totalPages = Math.ceil(recipes.length / ITEMS_PER_PAGE);
 
-  const handleViewRecipe = (id) => {
-    navigate(`/recipes/${id}`);
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
   };
 
-  if (loading) return <Loading />;
+  const handleViewRecipe = (id) => {
+    navigate(`/recipes/${id}`); // Navigate to the recipe detail page with the recipe ID
+  };
+
+  if (loading)
+    return (
+      <div>
+        <Loading />
+      </div>
+    );
   if (error) return <div>Error: {error.message}</div>;
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8 flex justify-center items-center">
-      <Carousel className="w-full max-w-4xl max-h-[90%] ">
-        <CarouselContent>
-          {recipes.map((recipe, index) => (
-            <CarouselItem
-              key={index}
-              className="h-[550px] md:h-fit sm:h-[400px] xs:h-[300px]"
-            >
-              <Card className="w-full h-full max-w-full mx-auto overflow-hidden rounded-3xl backdrop-blur-xl bg-white/20 border-2 border-gray-400">
-                <CardContent className="p-0 flex flex-col md:flex-row h-full">
-                  <div className="flex-1 p-8 bg-white/80 flex flex-col justify-between">
-                    <div>
-                      <Badge
-                        variant="outline"
-                        className="mb-4 text-black font-normal py-1 px-3 rounded-full"
-                      >
-                        🍳 {recipe.category}
-                      </Badge>
-                      <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4 leading-tight">
-                        {recipe.title}
-                      </h2>
-                      <p className="text-gray-600 mb-6 text-sm md:text-base">
-                        {recipe.description}
-                      </p>
-                      <div className="flex flex-wrap gap-4 mb-6">
-                        <Badge
-                          variant="secondary"
-                          className="text-gray-700 bg-gray-200 rounded-full py-1 px-3 text-xs"
-                        >
-                          <Clock className="w-4 h-4 mr-1" />
-                          {recipe.cookTime}
-                        </Badge>
-                        {recipe.tags.map((tag, index) => (
-                          <Badge
-                            key={index}
-                            variant="secondary"
-                            className="text-gray-700 bg-gray-200 rounded-full py-1 px-3 text-xs"
-                          >
-                            <CookingPot className="mr-1 h-4 w-4" />
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-                      <div className="flex items-center">
-                        <img
-                          src={recipe.userInfo.user.profilePicture}
-                          alt={recipe.userInfo.user.fullName}
-                          className="w-10 h-10 rounded-full mr-3"
-                        />
-                        <div>
-                          <p className="font-medium text-sm md:text-base">
-                            {recipe.userInfo.user.fullName}
-                          </p>
-                          <p className="text-xs text-gray-600">
-                            {new Date(recipe.createdAt).toLocaleDateString(
-                              "en-US",
-                              {
-                                weekday: "long",
-                                year: "numeric",
-                                month: "long",
-                                day: "numeric",
-                              }
-                            )}
-                          </p>
-                        </div>
-                      </div>
-                      <Button
-                        className="bg-black text-white rounded-full px-4 py-2 flex items-center text-xs md:text-sm"
-                        onClick={() => handleViewRecipe(recipe._id)}
-                      >
-                        View Recipe
-                        <ChevronRight className="w-4 h-4 ml-2" />
-                      </Button>
-                    </div>
-                  </div>
-                  <div className="flex-1 flex items-center justify-center">
-                    <img
-                      src={recipe.recipePicture}
-                      alt={recipe.title}
-                      className="w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[550px] object-cover rounded-br-3xl"
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-        <CarouselPrevious className="border-2 border-gray-400 rounded-full" />
-        <CarouselNext className="border-2 border-gray-400 rounded-full" />
-      </Carousel>
+    <div className="container mx-auto p-4">
+      <h1 className="text-3xl font-bold mb-8 text-center">Our Recipes</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {currentRecipes.map((recipe) => (
+          <Card key={recipe._id} className="flex flex-col backdrop-blur-2xl bg-white/20">
+            <CardHeader className="p-0">
+              <img
+                src={recipe.recipePicture}
+                alt={recipe.title}
+                className="w-full h-48 object-cover rounded-t-lg"
+              />
+            </CardHeader>
+            <CardContent className="flex-grow p-4">
+              <CardTitle className="text-xl mb-2">{recipe.title}</CardTitle>
+              <p className="text-gray-600 mb-4">{recipe.description}</p>
+              <div className="flex justify-between text-sm text-gray-500">
+                <span className="flex items-center">
+                  <Clock className="w-4 h-4 mr-1" />
+                  {recipe.cookTime} Min
+                </span>
+                <span className="flex items-center">
+                  <Utensils className="w-4 h-4 mr-1" />
+                  {recipe.category}
+                </span>
+              </div>
+            </CardContent>
+            <CardFooter className="p-4 pt-0 flex justify-between gap-4">
+              <Button
+                className="w-full"
+                onClick={() => handleViewRecipe(recipe._id)}
+              >
+                View Recipe
+              </Button>
+              <Button
+                className="w-fit"
+                onClick={() => handleViewRecipe(recipe._id)}
+              >
+                <Heart />
+              </Button>
+            </CardFooter>
+          </Card>
+        ))}
+      </div>
+      <div className="mt-8 flex justify-center items-center space-x-2">
+        <Button
+          variant="outline"
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
+          <ChevronLeft className="h-4 w-4" />
+          Previous
+        </Button>
+        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+          <Button
+            key={page}
+            variant={currentPage === page ? "default" : "outline"}
+            onClick={() => handlePageChange(page)}
+          >
+            {page}
+          </Button>
+        ))}
+        <Button
+          variant="outline"
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+        >
+          Next
+          <ChevronRight className="h-4 w-4" />
+        </Button>
+      </div>
     </div>
   );
 }

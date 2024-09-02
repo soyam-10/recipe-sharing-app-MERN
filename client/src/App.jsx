@@ -11,7 +11,6 @@ import About from "./components/about";
 import RecipePage from "./components/recipePage";
 import RecipeManagement from "./components/recipeManagement";
 import AdminPanel from "./components/AdminPanel";
-import GridBg from "./components/gridBg";
 
 function App() {
   const location = useLocation();
@@ -19,22 +18,26 @@ function App() {
 
   return (
     <>
-      <div className="relative">
-        <GridBg />
-
+      <div className="flex flex-col min-h-screen bg-gradient-to-r from-emerald-500 to-emerald-900">
         <Toaster position="top-center" />
         {showNavbar && <Navbar />}
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/recipes" element={<Recipes />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/recipes/:id" element={<RecipePage />} />
-          <Route path="/recipeManagement" element={<RecipeManagement />} />
-          <Route path="/adminDashboard" element={<AdminPanel />} />
-        </Routes>
+        
+        {/* Main content area that grows to fill the space */}
+        <div className="flex-grow">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/recipes" element={<Recipes />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/recipes/:id" element={<RecipePage />} />
+            <Route path="/recipeManagement" element={<RecipeManagement />} />
+            <Route path="/adminDashboard" element={<AdminPanel />} />
+          </Routes>
+        </div>
+
+        {/* Footer always sticks to the bottom */}
         <Footer />
       </div>
     </>

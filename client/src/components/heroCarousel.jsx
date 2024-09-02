@@ -60,105 +60,108 @@ export default function HeroCarousel() {
     navigate(`/recipes/${id}`);
   };
 
-  if (loading)
-    return (
-      <div>
-        <Loading />
-      </div>
-    );
+  if (loading) return <Loading />;
   if (error) return <div>Error: {error.message}</div>;
 
   return (
-    <div className="flex justify-center items-center">
-      <Carousel className="w-2/3">
-        <CarouselContent>
-          {recipes.map((recipe, index) => (
-            <CarouselItem key={index} className="h-full ">
-              <Card className="w-full h-full max-w-full mx-auto overflow-hidden rounded-3xl backdrop-blur-2xl bg-white/20 border-2 border-gray-400">
-                <CardContent className="p-0 flex h-full backdrop-blur-2xl bg-white/20 xl:aspect-video sm:aspect-video">
-                  <div className="flex-1 container  p-8 backdrop-blur-2xl bg-white/20 flex flex-col justify-between">
-                    <div>
-                      <Badge
-                        variant="outline"
-                        className="mb-4 text-black font-normal py-1 px-3 rounded-full backdrop-blur-2xl bg-white/20"
-                      >
-                        🍳 {recipe.category}
-                      </Badge>
-                      <h2 className="text-5xl md:text-3xl sm:text-lg font-bold mb-4 leading-tight">
-                        {recipe.title}
-                      </h2>
-                      <p className="text-gray-600 mb-6">{recipe.description}</p>
-                      <div className="flex space-x-4 mb-6">
+    <>
+      <div className="p-5 sm:px-6 lg:px-8 flex justify-center items-center">
+        <Carousel className="w-full md:min-w-xl md:max-w-7xl max-h-[90%]">
+          <CarouselContent>
+            {recipes.map((recipe, index) => (
+              <CarouselItem
+                key={index}
+                className="h-[550px] md:h-fit sm:h-[400px] xs:h-[300px]"
+              >
+                <Card className="w-full h-full max-w-full mx-auto max-h-full overflow-hidden backdrop-blur-3xl bg-white/80 hover:backdrop-blur-sm rounded-3xl border-2 border-gray-400">
+                  <CardContent className="p-0 flex flex-col md:flex-row h-full">
+                    <div className="flex-1 p-3 md:p-8 flex flex-col justify-between item">
+                      <div className="">
                         <Badge
-                          variant="secondary"
-                          className="text-gray-700 bg-gray-200 rounded-full py-1 px-3"
+                          variant="otuline"
+                          className="mb-4 text-black font-normal md:py-1 md:px-3 md:items-center border border-gray-400 rounded-full backdrop-blur-3xl bg-white/80 hover:backdrop-blur-sm "
                         >
-                          <Clock className="w-4 h-4 mr-1" />
-                          {recipe.cookTime}
+                          🍳 {recipe.category}
                         </Badge>
-                        <Badge
-                          variant="secondary"
-                          className="text-gray-700 bg-gray-200 rounded-full py-1 px-3"
-                        >
-                          {recipe.tags.map((tag, index) => (
+                        <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4 leading-tight">
+                          {recipe.title}
+                        </h2>
+                        <p className="text-gray-600 mb-6 text-sm md:text-base">
+                          {recipe.description}
+                        </p>
+                        <div className="flex justify-center items-center md:justify-start flex-wrap gap-4 mb-6">
+                          <Badge className="bg-white md:flex-row hover:bg-transparent">
                             <Badge
-                              key={index}
                               variant="secondary"
-                              className="text-gray-700 bg-gray-200 rounded-full py-1 px-3"
+                              className=" text-gray-700 bg-transparent rounded-full py-1 px-2 text-xs"
                             >
-                              <CookingPot className="mr-1 h-4 w-4" />
-                              <span key={index}>{tag}</span>
+                              <Clock className="w-4 h-4 mr-1" />
+                              {recipe.cookTime}
                             </Badge>
-                          ))}
-                        </Badge>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <img
-                          src={recipe.userInfo.user.profilePicture}
-                          alt={recipe.userInfo.user.fullName}
-                          className="w-10 h-10 rounded-full mr-3"
-                        />
-                        <div>
-                          <p>{recipe.userInfo.user.fullName}</p>
-                          <p className="text-sm text-gray-600">
-                            {new Date(recipe.createdAt).toLocaleDateString(
-                              "en-US",
-                              {
-                                weekday: "long",
-                                year: "numeric",
-                                month: "long",
-                                day: "numeric",
-                              }
-                            )}
-                          </p>
+                          </Badge>
+                          <Badge className="bg-white md:flex-row hover:bg-transparent">
+                            {recipe.tags.map((tag, index) => (
+                              <Badge
+                                key={index}
+                                variant="secondary"
+                                className="text-gray-700 bg-transparent rounded-full py-1 px-2 text-xs"
+                              >
+                                <CookingPot className="mr-1 h-4 w-4" />
+                                {tag}
+                              </Badge>
+                            ))}
+                          </Badge>
                         </div>
                       </div>
-                      <Button
-                        className="bg-black text-white rounded-full px-6 py-2 flex items-center"
-                        onClick={() => handleViewRecipe(recipe._id)}
-                      >
-                        View Recipe
-                        <ChevronRight className="w-4 h-4 ml-2" />
-                      </Button>
+                      <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                        <div className="flex items-center">
+                          <img
+                            src={recipe.userInfo.user.profilePicture}
+                            alt={recipe.userInfo.user.fullName}
+                            className="w-10 h-10 rounded-full mr-3"
+                          />
+                          <div>
+                            <p className="font-medium text-sm md:text-base">
+                              {recipe.userInfo.user.fullName}
+                            </p>
+                            <p className="text-xs text-gray-600">
+                              {new Date(recipe.createdAt).toLocaleDateString(
+                                "en-US",
+                                {
+                                  weekday: "long",
+                                  year: "numeric",
+                                  month: "long",
+                                  day: "numeric",
+                                }
+                              )}
+                            </p>
+                          </div>
+                        </div>
+                        <Button
+                          className="bg-black text-white rounded-full px-4 py-2 flex items-center text-xs md:text-sm"
+                          onClick={() => handleViewRecipe(recipe._id)}
+                        >
+                          View Recipe
+                          <ChevronRight className="w-4 h-4 ml-2" />
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex-1 container ">
-                    <img
-                      src={recipe.recipePicture}
-                      alt={recipe.title}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-        <CarouselPrevious className="border-2 border-gray-400" />
-        <CarouselNext className="border-2 border-gray-400" />
-      </Carousel>
-    </div>
+                    <div className="flex-1 flex items-center justify-center">
+                      <img
+                        src={recipe.recipePicture}
+                        alt={recipe.title}
+                        className="w-full h-fit sm:h-[400px] md:h-[500px] lg:h-[550px] object-cover rounded-br-3xl"
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <CarouselPrevious className="border-2 border-gray-400 rounded-full" />
+          <CarouselNext className="border-2 border-gray-400 rounded-full" />
+        </Carousel>
+      </div>
+    </>
   );
 }

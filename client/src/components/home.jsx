@@ -1,9 +1,8 @@
 import { useCallback } from "react";
-// import HeroCarousel from "./heroCarousel";
+import HeroCarousel from "./heroCarousel";
 import { Navigate } from "react-router-dom";
 import "../App.css";
-import GridBg from "./gridBg";
-import Dummy from "./dummy";
+import Recipes from "./dummy";
 
 const Home = () => {
   const getUserSession = useCallback(() => {
@@ -16,12 +15,9 @@ const Home = () => {
   }
   return (
     <>
-      <div className=" p-10">
-        <div className="relative h-screen">
-          <GridBg />
-          {/* <HeroCarousel /> */}
-          <Dummy />
-        </div>
+      <div>
+        <HeroCarousel />
+        <Recipes />
       </div>
     </>
   );

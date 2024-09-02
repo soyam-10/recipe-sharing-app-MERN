@@ -53,7 +53,11 @@ const getRecipes = async (req, res) => {
 const getRecipeByID = async (req, res) => {
   try {
     const { id } = req.params;
-    const recipe = await recipeModel.findById(id);
+    const recipe = await recipeModel
+      .findById(id)
+      .populate("user", "fullName profilePicture") // populate the user who created the recipe
+      .populate("reviews.user", "fullName profilePicture") // populate the users in the reviews
+      .populate("ratings.user", "fullName profilePicture"); // populate the users in the ratings;
     if (!recipe) {
       return res.status(404).json({ message: "Recipe not found" });
     }
@@ -76,13 +80,11 @@ const updateRecipeByID = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Recipe not found" });
     }
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "Recipe updated",
-        recipe: updatedRecipe,
-      });
+    res.status(200).json({
+      success: true,
+      message: "Recipe updated",
+      recipe: updatedRecipe,
+    });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
@@ -98,21 +100,17 @@ const deleteRecipeByID = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Recipe not found" });
     }
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "Recipe deleted successfully",
-        recipe: deletedRecipe,
-      });
+    res.status(200).json({
+      success: true,
+      message: "Recipe deleted successfully",
+      recipe: deletedRecipe,
+    });
   } catch (err) {
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "An error occurred",
-        error: err.message,
-      });
+    res.status(500).json({
+      success: false,
+      message: "An error occurred",
+      error: err.message,
+    });
   }
 };
 
@@ -126,12 +124,10 @@ const filterRecipes = async (req, res) => {
     if (tagsArray.length > 0) filterCriteria.tags = { $in: tagsArray };
     const recipes = await recipeModel.find(filterCriteria);
     if (recipes.length === 0) {
-      return res
-        .status(200)
-        .json({
-          success: true,
-          message: "No recipes found matching the criteria",
-        });
+      return res.status(200).json({
+        success: true,
+        message: "No recipes found matching the criteria",
+      });
     }
     res
       .status(200)
@@ -150,8 +146,17 @@ const addRating = async (req, res) => {
     if (!recipe) {
       return res.status(404).json({ message: "Recipe not found" });
     }
-    // Add new rating
-    recipe.ratings.push({ user, rating });
+    // Check if the user has already rated this recipe
+    const existingRating = recipe.ratings.find(
+      (r) => r.user.toString() === user
+    );
+    if (existingRating) {
+      // Update existing rating
+      existingRating.rating = rating;
+    } else {
+      // Add new rating
+      recipe.ratings.push({ user, rating });
+    }
     await recipe.save();
     res
       .status(200)
@@ -170,8 +175,17 @@ const addReview = async (req, res) => {
     if (!recipe) {
       return res.status(404).json({ message: "Recipe not found" });
     }
-    // Add new review
-    recipe.reviews.push({ user, review });
+    // Check if the user has already reviewed this recipe
+    const existingReview = recipe.reviews.find(
+      (r) => r.user.toString() === user
+    );
+    if (existingReview) {
+      // Update existing review
+      existingReview.review = review;
+    } else {
+      // Add new review
+      recipe.reviews.push({ user, review });
+    }
     await recipe.save();
     res
       .status(200)
@@ -187,9 +201,15 @@ const getRecipesByUser = async (req, res) => {
     const { userId } = req.params;
     const recipes = await recipeModel.find({ user: userId });
     if (recipes.length === 0) {
-      return res.status(200).json({ success: true, message: "No recipes found for this user", recipes: [] });
+      return res.status(200).json({
+        success: true,
+        message: "No recipes found for this user",
+        recipes: [],
+      });
     }
-    res.status(200).json({ success: true, totalRecipes: recipes.length, recipes });
+    res
+      .status(200)
+      .json({ success: true, totalRecipes: recipes.length, recipes });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
@@ -202,15 +222,18 @@ const deleteRecipesByUser = async (req, res) => {
     // Find and delete all recipes by the user
     const result = await recipeModel.deleteMany({ user: userId });
     if (result.deletedCount === 0) {
-      return res.status(200).json({ success: true, message: "No recipes found for this user" });
+      return res
+        .status(200)
+        .json({ success: true, message: "No recipes found for this user" });
     }
-    res.status(200).json({ success: true, message: `${result.deletedCount} recipe(s) deleted` });
+    res.status(200).json({
+      success: true,
+      message: `${result.deletedCount} recipe(s) deleted`,
+    });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 };
-
-
 
 module.exports = {
   createRecipe,

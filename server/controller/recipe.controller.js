@@ -235,6 +235,44 @@ const deleteRecipesByUser = async (req, res) => {
   }
 };
 
+const searchRecipe = async (req, res) => {
+  try {
+    const { query } = req.query;
+
+    // Check if query parameter is provided
+    if (!query || typeof query !== "string") {
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: "Search query is required and must be a string",
+        });
+    }
+    // Perform the search
+    const recipes = await recipeModel.find({
+      $or: [
+        { title: { $regex: query, $options: "i" } }, // Case-insensitive search for title
+        { description: { $regex: query, $options: "i" } }, // Case-insensitive search for description
+      ],
+    });
+
+    // Respond with the results
+    res.status(200).json({
+      success: true,
+      total_matched_recipes: recipes.length,
+      recipes,
+    });
+  } catch (error) {
+    // Log the error for debugging
+    console.error("Error searching recipes:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error searching recipes",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   createRecipe,
   getRecipes,
@@ -246,4 +284,5 @@ module.exports = {
   addReview,
   getRecipesByUser,
   deleteRecipesByUser,
+  searchRecipe,
 };

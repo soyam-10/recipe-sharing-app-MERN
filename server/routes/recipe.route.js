@@ -10,7 +10,8 @@ const {
   addRating,
   addReview,
   getRecipesByUser,
-  deleteRecipesByUser, // Import the new function
+  deleteRecipesByUser,
+  searchRecipe, // Import the new function
 } = require("../controller/recipe.controller");
 
 router.post("/", authenticate("cook", "admin"), createRecipe);
@@ -21,6 +22,7 @@ router.delete("/:id", authenticate("cook", "admin"), deleteRecipeByID);
 router.put("/:id/rating", addRating);
 router.put("/:id/review", addReview);
 router.get("/user/:userId", getRecipesByUser);
+router.get("/search/recipe", searchRecipe);
 router.delete('/user/:userId', authenticate("admin"), deleteRecipesByUser);
 
 module.exports = router;

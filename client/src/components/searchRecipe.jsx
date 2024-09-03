@@ -1,92 +1,42 @@
-import { useCallback, useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Clock,
-  Utensils,
-  ChevronLeft,
-  ChevronRight,
-  Heart,
-} from "lucide-react"; // Import Heart icon
-import { useNavigate } from "react-router-dom";
-import Loading from "./loading";
+// SearchRecipes.js
+import { useState } from "react";
+import { Button  } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { toast } from "sonner";
-import SearchRecipe from "./searchRecipe";
+import { useNavigate } from "react-router-dom";
+import Loading from "./loading"; // Adjust path as needed
+import { ChevronLeft, ChevronRight, Clock, Utensils } from "lucide-react";
 
 const ITEMS_PER_PAGE = 9;
 
-export default function Recipes() {
+export default function SearchRecipe() {
+  const [searchTerm, setSearchTerm] = useState("");
   const [recipes, setRecipes] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const getUserSession = useCallback(() => {
-    const session = localStorage.getItem("session");
-    return session ? JSON.parse(session) : null;
-  }, []);
-  const session = getUserSession();
 
-  useEffect(() => {
-    const fetchRecipes = async () => {
-      try {
-        if (!session) {
-          navigate("/login");
-        } else {
-          const response = await fetch("http://localhost:5000/recipes"); // Adjust the URL to match your backend route
-          if (!response.ok) {
-            throw new Error("Network response was not ok");
-          }
-          const data = await response.json();
-          setRecipes(data.recipes);
-        }
-      } catch (error) {
-        setError(error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const handleSearch = async () => {
+    if (!searchTerm.trim()) {
+      toast.error("Please enter a search term.");
+      return;
+    }
 
-    fetchRecipes();
-  }, [navigate, session]);
-
-  const addToFavorites = async (recipeId) => {
+    setLoading(true);
     try {
-      const response = await fetch(
-        `http://localhost:5000/users/addToFav/${session.user.id}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${session.token}`,
-          },
-          body: JSON.stringify({ recipeId }),
-        }
-      );
-
-      // Log the request and response for debugging
-      console.log("Request Payload:", JSON.stringify({ recipeId }));
-      const responseData = await response.json();
-      console.log("Response Data:", responseData);
-
+      const response = await fetch(`http://localhost:5000/recipes/search/recipe?query=${searchTerm}`);
       if (!response.ok) {
-        if (response.status === 404) {
-          toast.error("Recipe is already in favorites");
-        } else {
-          toast.error("An error occurred");
-        }
-      } else {
-        toast.success("Recipe added to favorites!");
+        toast.error("Network response was not ok");
+        throw new Error("Network response was not ok");
       }
+      const data = await response.json();
+      setRecipes(data.recipes);
     } catch (error) {
-      console.error("Error adding recipe to favorites:", error);
-      toast.error("An error occurred.");
+      setError(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -100,19 +50,28 @@ export default function Recipes() {
   };
 
   const handleViewRecipe = (id) => {
-    navigate(`/recipes/${id}`); // Navigate to the recipe detail page with the recipe ID
+    navigate(`/recipes/${id}`);
   };
 
   if (loading) return <Loading />;
   if (error) return <div>Error: {error.message}</div>;
 
   return (
-    <>
-    <SearchRecipe />
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-8 text-center">Our Recipes</h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {currentRecipes.map((recipe) => (
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex justify-center items-center space-x-4 mb-8">
+        <Input
+          type="text"
+          placeholder="Search for a recipe..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-auto max-w-md"
+        />
+        <Button onClick={handleSearch}>Search</Button>
+      </div>
+      <h1 className="text-3xl font-bold mb-8 text-center">{searchTerm ? "Search results" : ""}</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {currentRecipes.length > 0 ? (
+          currentRecipes.map((recipe) => (
             <Card
               key={recipe._id}
               className="flex flex-col backdrop-blur-2xl bg-white/20"
@@ -145,16 +104,14 @@ export default function Recipes() {
                 >
                   View Recipe
                 </Button>
-                <Button
-                  variant="ghost"
-                  onClick={() => addToFavorites(recipe._id)}
-                >
-                  <Heart className="w-5 h-5" />
-                </Button>
               </CardFooter>
             </Card>
-          ))}
-        </div>
+          ))
+        ) : (
+          <div className="text-start text-xl">Recipe not found</div>
+        )}
+      </div>
+      {totalPages > 1 && (
         <div className="mt-8 flex justify-center items-center space-x-2">
           <Button
             variant="outline"
@@ -182,7 +139,7 @@ export default function Recipes() {
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
-      </div>
-    </>
+      )}
+    </div>
   );
 }

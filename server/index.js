@@ -24,12 +24,10 @@ const connectDB = async () => {
 // Import route handlers
 const recipeRoutes = require("./routes/recipe.route");
 const userRoutes = require("./routes/user.route");
-const searchRoutes = require("./routes/search.route");
 
 // Use routes
 app.use("/recipes", recipeRoutes);
 app.use("/users", userRoutes);
-app.use("/search", searchRoutes);
 
 // Root route
 app.get("/", (req, res) => {

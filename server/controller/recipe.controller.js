@@ -114,25 +114,34 @@ const deleteRecipeByID = async (req, res) => {
   }
 };
 
-// GET request to filter recipes by category or tags
 const filterRecipes = async (req, res) => {
   try {
-    const { category, tags } = req.query;
-    const tagsArray = tags ? tags.split(",") : [];
+    console.log("Filter recipes route hit"); // Log to check if this route is hit
+
+    const { category, limit } = req.query;
     const filterCriteria = {};
-    if (category) filterCriteria.category = category;
-    if (tagsArray.length > 0) filterCriteria.tags = { $in: tagsArray };
-    const recipes = await recipeModel.find(filterCriteria);
+    if (category) {
+      filterCriteria.category = { $regex: `^${category}$`, $options: "i" };
+    }
+
+    let recipes = await recipeModel.find(filterCriteria);
+
+    if (limit) {
+      recipes = recipes.slice(0, Number(limit));
+    }
+
     if (recipes.length === 0) {
-      return res.status(200).json({
+      return res.status(404).json({
         success: true,
         message: "No recipes found matching the criteria",
       });
     }
+
     res
       .status(200)
       .json({ success: true, recipes, totalRecipes: recipes.length });
   } catch (err) {
+    console.error("Error fetching recipes:", err.message);
     res.status(500).json({ success: false, message: err.message });
   }
 };
@@ -241,18 +250,19 @@ const searchRecipe = async (req, res) => {
 
     // Check if query parameter is provided
     if (!query || typeof query !== "string") {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Search query is required and must be a string",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Search query is required and must be a string",
+      });
     }
     // Perform the search
     const recipes = await recipeModel.find({
       $or: [
         { title: { $regex: query, $options: "i" } }, // Case-insensitive search for title
         { description: { $regex: query, $options: "i" } }, // Case-insensitive search for description
+        { category: { $regex: query, $options: "i" } }, // Case-insensitive search for category
+        { tags: { $regex: query, $options: "i" } }, // Case-insensitive search for category
+        { ingredients: { $regex: query, $options: "i" } }, // Case-insensitive search for ingredients
       ],
     });
 

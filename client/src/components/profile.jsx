@@ -192,6 +192,7 @@ export default function Profile() {
         ) : (
           ""
         )}
+        <Button><Link to="/favRecipes">View your favorite recipes.</Link></Button>
       </div>
 
       <Card className="backdrop-blur-2xl bg-white/20">

@@ -8,6 +8,14 @@ const userSchema = new mongoose.Schema({
   bio: { type: String },
   role: { type: String, enum: ["user", "cook", "admin"], default: "user" },
   joinedAt: { type: Date, default: Date.now },
+  favRecipes: [
+    {
+      recipeId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Recipe'
+      }
+    }
+  ]
 },{ timestamps: true });
 
 module.exports = mongoose.model("User", userSchema);

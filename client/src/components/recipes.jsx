@@ -7,9 +7,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Clock, Utensils, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Clock,
+  Utensils,
+  ChevronLeft,
+  ChevronRight,
+  Heart,
+} from "lucide-react"; // Import Heart icon
 import { useNavigate } from "react-router-dom";
 import Loading from "./loading";
+import { toast } from "sonner";
 
 const ITEMS_PER_PAGE = 9;
 
@@ -18,7 +25,7 @@ export default function Recipes() {
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
   const getUserSession = useCallback(() => {
     const session = localStorage.getItem("session");
     return session ? JSON.parse(session) : null;
@@ -29,7 +36,7 @@ export default function Recipes() {
     const fetchRecipes = async () => {
       try {
         if (!session) {
-          return navigate("/login");
+          navigate("/login");
         } else {
           const response = await fetch("http://localhost:5000/recipes"); // Adjust the URL to match your backend route
           if (!response.ok) {
@@ -48,6 +55,40 @@ export default function Recipes() {
     fetchRecipes();
   }, [navigate, session]);
 
+  const addToFavorites = async (recipeId) => {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/users/addToFav/${session.user.id}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.token}`,
+          },
+          body: JSON.stringify({ recipeId }),
+        }
+      );
+
+      // Log the request and response for debugging
+      console.log("Request Payload:", JSON.stringify({ recipeId }));
+      const responseData = await response.json();
+      console.log("Response Data:", responseData);
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          toast.error("Recipe is already in favorites");
+        } else {
+          toast.error("An error occurred");
+        }
+      } else {
+        toast.success("Recipe added to favorites!");
+      }
+    } catch (error) {
+      console.error("Error adding recipe to favorites:", error);
+      toast.error("An error occurred.");
+    }
+  };
+
   const indexOfLastRecipe = currentPage * ITEMS_PER_PAGE;
   const indexOfFirstRecipe = indexOfLastRecipe - ITEMS_PER_PAGE;
   const currentRecipes = recipes.slice(indexOfFirstRecipe, indexOfLastRecipe);
@@ -61,12 +102,7 @@ export default function Recipes() {
     navigate(`/recipes/${id}`); // Navigate to the recipe detail page with the recipe ID
   };
 
-  if (loading)
-    return (
-      <div>
-        <Loading />
-      </div>
-    );
+  if (loading) return <Loading />;
   if (error) return <div>Error: {error.message}</div>;
 
   return (
@@ -74,7 +110,10 @@ export default function Recipes() {
       <h1 className="text-3xl font-bold mb-8 text-center">Our Recipes</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {currentRecipes.map((recipe) => (
-          <Card key={recipe._id} className="flex flex-col backdrop-blur-2xl bg-white/20">
+          <Card
+            key={recipe._id}
+            className="flex flex-col backdrop-blur-2xl bg-white/20"
+          >
             <CardHeader className="p-0">
               <img
                 src={recipe.recipePicture}
@@ -96,12 +135,18 @@ export default function Recipes() {
                 </span>
               </div>
             </CardContent>
-            <CardFooter className="p-4 pt-0">
+            <CardFooter className="p-4 pt-0 flex justify-between">
               <Button
-                className="w-full"
+                className="w-full mr-2"
                 onClick={() => handleViewRecipe(recipe._id)}
               >
                 View Recipe
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => addToFavorites(recipe._id)}
+              >
+                <Heart className="w-5 h-5" />
               </Button>
             </CardFooter>
           </Card>

@@ -11,6 +11,7 @@ import About from "./components/about";
 import RecipePage from "./components/recipePage";
 import RecipeManagement from "./components/recipeManagement";
 import AdminPanel from "./components/AdminPanel";
+import FavRecipes from "./components/favRecipes";
 
 function App() {
   const location = useLocation();
@@ -33,6 +34,7 @@ function App() {
             <Route path="/profile" element={<Profile />} />
             <Route path="/recipes/:id" element={<RecipePage />} />
             <Route path="/recipeManagement" element={<RecipeManagement />} />
+            <Route path="/favRecipes" element={<FavRecipes />} />
             <Route path="/adminDashboard" element={<AdminPanel />} />
           </Routes>
         </div>

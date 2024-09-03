@@ -2,6 +2,7 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user.model");
+const mongoose = require("mongoose");
 
 const router = express.Router();
 
@@ -158,13 +159,11 @@ const updateUserByID = async (req, res) => {
         .status(404)
         .json({ success: false, message: "User not found" });
     }
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "User updated",
-        user: updatedUser,
-      });
+    res.status(200).json({
+      success: true,
+      message: "User updated",
+      user: updatedUser,
+    });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
@@ -178,13 +177,17 @@ const updatePasswordByID = async (req, res) => {
   try {
     const user = await User.findById(id);
     if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
     // Check if the old password matches
     const isMatch = await bcrypt.compare(oldPassword, user.password);
     if (!isMatch) {
-      return res.status(400).json({ success: false, message: "Old password is incorrect" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Old password is incorrect" });
     }
 
     // Hash the new password and update it
@@ -193,7 +196,9 @@ const updatePasswordByID = async (req, res) => {
     user.password = hashedPassword;
     await user.save();
 
-    res.status(200).json({ success: true, message: "Password updated successfully" });
+    res
+      .status(200)
+      .json({ success: true, message: "Password updated successfully" });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -206,7 +211,9 @@ const deleteUserByID = async (req, res) => {
     const deletedUser = await User.findByIdAndDelete(id);
 
     if (!deletedUser) {
-      return res.status(404).json({ success: false, message: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
     res.status(200).json({
@@ -219,6 +226,104 @@ const deleteUserByID = async (req, res) => {
   }
 };
 
+const addFavRecipe = async (req, res) => {
+  try {
+    const { recipeId } = req.body; // The ID of the recipe to be added to favorites
+    const { id } = req.params; // The ID of the user
+
+    // Find the user by ID
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Use the `find` method to check if the recipe is already in the user's favorites list
+    const existingFav = user.favRecipes.find(
+      (fav) => fav.recipeId || fav._id == recipeId
+    );
+
+    // If the recipe is already in favorites, return an appropriate response
+    if (existingFav) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Recipe is already in favorites" });
+    } else {
+      // If not, add the recipe to the favorites list
+      user.favRecipes.push(recipeId);
+      await user.save();
+
+      res.status(200).json({
+        success: true,
+        existingFav: existingFav,
+        message: "Recipe added to favorites",
+        favRecipes: user.favRecipes,
+      });
+    }
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+const getFavRecipes = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById(id).populate("favRecipes").exec();
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    // Return the favorite recipes
+    res.status(200).json({
+      success: true,
+      total_recipes: user.favRecipes.length,
+      recipes: user.favRecipes,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+const removeFavRecipe = async (req, res) => {
+  try {
+    const { id } = req.params; // User ID
+    const { recipeId } = req.body; // Recipe ID to be removed from favorites
+
+    // Validate that recipeId is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(recipeId)) {
+      return res.status(400).json({ success: false, message: "Invalid recipe ID" });
+    }
+
+    // Find the user by ID
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    // Check if the recipe is in the user's favorites
+    const recipeIndex = user.favRecipes.findIndex(
+      (fav) => fav._id.toString() === recipeId
+    );
+
+    if (recipeIndex === -1) {
+      return res.status(404).json({ success: false, message: "Recipe not found in favorites" });
+    }
+
+    // Remove the recipe from favorites
+    user.favRecipes.splice(recipeIndex, 1);
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      fav_recipes_total: user.favRecipes.length,
+      message: "Recipe removed from favorites",
+      favRecipes: user.favRecipes,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
 
 module.exports = {
   registerUser,
@@ -229,4 +334,7 @@ module.exports = {
   updateUserByID,
   updatePasswordByID,
   deleteUserByID,
+  addFavRecipe,
+  getFavRecipes,
+  removeFavRecipe,
 };

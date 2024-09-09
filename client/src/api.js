@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'http://localhost:5000/',
+    baseURL: 'https://backend-recipe-sharing-app-mern.vercel.app/',
 });
 
 export default api;

@@ -1,8 +1,14 @@
 // SearchRecipes.js
 import { useState } from "react";
-import { Button  } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from "@/components/ui/card";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import Loading from "./loading"; // Adjust path as needed
@@ -26,14 +32,18 @@ export default function SearchRecipe() {
 
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:5000/recipes/search/recipe?query=${searchTerm}`);
+      const response = await fetch(
+        `http://localhost:5000/recipes/search/recipe?query=${searchTerm}`
+      );
       if (!response.ok) {
-        toast.error("Network response was not ok");
-        throw new Error("Network response was not ok");
+        if (response.status === 404) {
+          toast.error(`No recipes found related to ${searchTerm}`);
+        }
       }
       const data = await response.json();
       setRecipes(data.recipes);
     } catch (error) {
+      console.log(error);
       setError(error);
     } finally {
       setLoading(false);
@@ -68,48 +78,45 @@ export default function SearchRecipe() {
         />
         <Button onClick={handleSearch}>Search</Button>
       </div>
-      <h1 className="text-3xl font-bold mb-8 text-center">{searchTerm ? "Search results" : ""}</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {currentRecipes.length > 0 ? (
-          currentRecipes.map((recipe) => (
-            <Card
-              key={recipe._id}
-              className="flex flex-col backdrop-blur-2xl bg-white/20"
-            >
-              <CardHeader className="p-0">
-                <img
-                  src={recipe.recipePicture}
-                  alt={recipe.title}
-                  className="w-full h-48 object-cover rounded-t-lg"
-                />
-              </CardHeader>
-              <CardContent className="flex-grow p-4">
-                <CardTitle className="text-xl mb-2">{recipe.title}</CardTitle>
-                <p className="text-black mb-4">{recipe.description}</p>
-                <div className="flex justify-between text-sm text-black">
-                  <span className="flex items-center">
-                    <Clock className="w-4 h-4 mr-1" />
-                    {recipe.cookTime} Min
-                  </span>
-                  <span className="flex items-center">
-                    <Utensils className="w-4 h-4 mr-1" />
-                    {recipe.category}
-                  </span>
-                </div>
-              </CardContent>
-              <CardFooter className="p-4 pt-0 flex justify-between">
-                <Button
-                  className="w-full mr-2"
-                  onClick={() => handleViewRecipe(recipe._id)}
-                >
-                  View Recipe
-                </Button>
-              </CardFooter>
-            </Card>
-          ))
-        ) : (
-          <div className="text-start text-xl">Recipe not found</div>
-        )}
+        {currentRecipes.length > 0
+          ? currentRecipes.map((recipe) => (
+              <Card
+                key={recipe._id}
+                className="flex flex-col backdrop-blur-2xl bg-white/20"
+              >
+                <CardHeader className="p-0">
+                  <img
+                    src={recipe.recipePicture}
+                    alt={recipe.title}
+                    className="w-full h-48 object-cover rounded-t-lg"
+                  />
+                </CardHeader>
+                <CardContent className="flex-grow p-4">
+                  <CardTitle className="text-xl mb-2">{recipe.title}</CardTitle>
+                  <p className="text-black mb-4">{recipe.description}</p>
+                  <div className="flex justify-between text-sm text-black">
+                    <span className="flex items-center">
+                      <Clock className="w-4 h-4 mr-1" />
+                      {recipe.cookTime} Min
+                    </span>
+                    <span className="flex items-center">
+                      <Utensils className="w-4 h-4 mr-1" />
+                      {recipe.category}
+                    </span>
+                  </div>
+                </CardContent>
+                <CardFooter className="p-4 pt-0 flex justify-between">
+                  <Button
+                    className="w-full mr-2"
+                    onClick={() => handleViewRecipe(recipe._id)}
+                  >
+                    View Recipe
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))
+          : ""}
       </div>
       {totalPages > 1 && (
         <div className="mt-8 flex justify-center items-center space-x-2">

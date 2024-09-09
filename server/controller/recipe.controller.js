@@ -266,12 +266,21 @@ const searchRecipe = async (req, res) => {
       ],
     });
 
-    // Respond with the results
-    res.status(200).json({
-      success: true,
-      total_matched_recipes: recipes.length,
-      recipes,
-    });
+    if (recipes.length == 0) {
+      res.status(404).json({
+        success: false,
+        total_found_recipes: recipes.length,
+        recipes,
+        message: "No recipes found Try searching other term.  "
+      });
+    } else {
+      // Respond with the results
+      res.status(200).json({
+        success: true,
+        total_found_recipes: recipes.length,
+        recipes,
+      });
+    }
   } catch (error) {
     // Log the error for debugging
     console.error("Error searching recipes:", error);

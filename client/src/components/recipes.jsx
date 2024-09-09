@@ -39,7 +39,7 @@ export default function Recipes() {
         if (!session) {
           navigate("/login");
         } else {
-          const response = await fetch("http://localhost:5000/recipes"); // Adjust the URL to match your backend route
+          const response = await fetch("https://backend-recipe-sharing-app-mern.vercel.app/recipes"); // Adjust the URL to match your backend route
           if (!response.ok) {
             throw new Error("Network response was not ok");
           }
@@ -59,7 +59,7 @@ export default function Recipes() {
   const addToFavorites = async (recipeId) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/users/addToFav/${session.user.id}`,
+        `https://backend-recipe-sharing-app-mern.vercel.app/users/addToFav/${session.user.id}`,
         {
           method: "POST",
           headers: {
@@ -77,7 +77,9 @@ export default function Recipes() {
 
       if (!response.ok) {
         if (response.status === 404) {
-          toast.error("Recipe is already in favorites");
+          toast.error("Recipe is already in favorites", {
+            description: "View your fav recipes in profiles page."
+          });
         } else {
           toast.error("An error occurred");
         }

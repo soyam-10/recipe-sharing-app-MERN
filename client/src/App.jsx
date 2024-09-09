@@ -20,7 +20,7 @@ function App() {
   return (
     <>
       <div className="flex flex-col min-h-screen bg-gradient-to-r from-emerald-500 to-emerald-900">
-        <Toaster position="top-center" />
+        <Toaster richColors position="top-center" />
         {showNavbar && <Navbar />}
         
         {/* Main content area that grows to fill the space */}

@@ -57,7 +57,11 @@ export default function Navbar() {
           className="md:hidden flex items-center justify-center p-2 rounded-md text-gray-600 hover:text-gray-900"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
         >
-          {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          {isMenuOpen ? (
+            <X className="h-6 w-6" />
+          ) : (
+            <Menu className="h-6 w-6" />
+          )}
         </button>
 
         {/* Navigation Menu for Desktop */}
@@ -96,14 +100,11 @@ export default function Navbar() {
                 <Button variant="ghost" size="icon" className="rounded-full">
                   <Avatar className="h-8 w-8">
                     <AvatarImage
-                      src={
-                        session.user.profilePicture ||
-                        "https://github.com/shadcn.png"
-                      }
+                      src={session.user.profilePicture}
                       alt={session.user.fullName}
                     />
                     <AvatarFallback>
-                      {session.user.fullName.toUpperCase()}
+                      {session.user.fullName[0].toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                 </Button>
@@ -135,7 +136,7 @@ export default function Navbar() {
       </div>
 
       {/* Mobile Menu */}
-      <nav className={`md:hidden ${isMenuOpen ? 'block' : 'hidden'} p-4`}>
+      <nav className={`md:hidden ${isMenuOpen ? "block" : "hidden"} p-4`}>
         <Link
           to="/"
           className="block text-sm font-medium text-foreground transition-colors hover:text-primary mb-2"
@@ -162,7 +163,6 @@ export default function Navbar() {
         </Link>
         {session ? (
           <>
-            
             {session.user.role === "admin" && (
               <Link
                 to="/adminDashboard"

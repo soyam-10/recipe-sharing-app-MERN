@@ -96,6 +96,22 @@ export default function RecipePage() {
     }
   };
 
+  const copyLinkToClipboard = () => {
+    navigator.clipboard
+      .writeText(window.location.href)
+      .then(() => {
+        toast.success("Share Link copied to clipboard!");
+      })
+      .catch((err) => {
+        console.error("Failed to copy link: ", err);
+        toast.error("Failed to copy link.");
+      });
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
+
   // Display loading or error message if recipe data is not available
   if (!recipe) {
     return (
@@ -142,11 +158,11 @@ export default function RecipePage() {
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-4xl font-bold">{title}</h1>
           <div className="flex space-x-2">
-            <Button variant="outline" size="icon">
-              <Printer className="h-4 w-4" />
+            <Button variant="outline" size="icon" onClick={handlePrint}>
+              <Printer className="h-4 w-4 text-black" />
             </Button>
-            <Button variant="outline" size="icon">
-              <Share2 className="h-4 w-4" />
+            <Button variant="outline" size="icon" onClick={copyLinkToClipboard}>
+              <Share2 className="h-4 w-4 text-black" />
             </Button>
           </div>
         </div>
@@ -231,7 +247,8 @@ export default function RecipePage() {
           <h2 className="text-2xl font-semibold mb-4">
             Total Ratings
             <span className="ml-4 text-xl font-semibold text-yellow-500">
-              {averageRating} {averageRating === "No ratings yet" ? "Not rated yet" : "/ 5"}
+              {averageRating}{" "}
+              {averageRating === "No ratings yet" ? "Not rated yet" : "/ 5"}
             </span>
           </h2>
           <div className="flex justify-center items-center">
@@ -271,6 +288,7 @@ export default function RecipePage() {
                 <div>
                   <Label htmlFor="review">Review</Label>
                   <Textarea
+                    className="text-black"
                     id="review"
                     placeholder="Write your review here..."
                     value={review}
@@ -297,7 +315,9 @@ export default function RecipePage() {
                       src={review.user.profilePicture}
                       alt={review.user.fullName}
                     />
-                    <AvatarFallback>{review.user.fullName[0]}</AvatarFallback>
+                    <AvatarFallback className="text-black">
+                      {review.user.fullName[0].toUpperCase()}
+                    </AvatarFallback>
                   </Avatar>
                   <div>
                     <p className="font-semibold">{review.user.fullName}</p>

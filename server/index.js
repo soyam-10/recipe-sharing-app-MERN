@@ -9,20 +9,11 @@ const PORT = process.env.PORT || 5000;
 // Middleware setup
 app.use(express.json());
 app.use(cors({
-  origin: ['https://frontend-recipe-sharing-app-mern.vercel.app/'], // Only allow this origin
-  methods: ['GET,PUT,POST,DELETE'], // Allowed methods
+  origin: ['https://frontend-recipe-sharing-app-mern.vercel.app'],
+  methods: ['GET', 'PUT', 'POST', 'DELETE'],
   credentials: true, // Enable Access-Control-Allow-Credentials
   optionsSuccessStatus: 204 // Some legacy browsers choke on 204
 }));
-
-// const corsOptions = {
-//   origin: 'https://frontend-recipe-sharing-app-mern.vercel.app/', // Only allow this origin
-//   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Allowed methods
-//   credentials: true, // Enable Access-Control-Allow-Credentials
-//   optionsSuccessStatus: 204 // Some legacy browsers choke on 204
-// };
-
-// app.options('*', cors(corsOptions)); // Handle preflight requests for all routes
 
 // MongoDB connection setup
 const connectDB = async () => {

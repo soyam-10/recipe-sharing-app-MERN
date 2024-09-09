@@ -22,7 +22,7 @@ export default function HeroCarousel() {
   useEffect(() => {
     const fetchRecipes = async () => {
       try {
-        const response = await fetch("http://localhost:5000/recipes"); // Adjust the URL to match your backend route
+        const response = await fetch("https://backend-recipe-sharing-app-mern.vercel.app/recipes"); // Adjust the URL to match your backend route
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
@@ -32,7 +32,7 @@ export default function HeroCarousel() {
         const recipesWithUserInfo = await Promise.all(
           data.recipes.map(async (recipe) => {
             const userResponse = await fetch(
-              `http://localhost:5000/users/${recipe.user}`
+              `https://backend-recipe-sharing-app-mern.vercel.app/users/${recipe.user}`
             );
             if (!userResponse.ok) {
               throw new Error("Failed to fetch user info");

@@ -37,7 +37,7 @@ export default function Recipes() {
         if (!session) {
           return navigate("/login");
         } else {
-          const response = await fetch("http://localhost:5000/recipes"); // Adjust the URL to match your backend route
+          const response = await fetch("https://backend-recipe-sharing-app-mern.vercel.app/recipes"); // Adjust the URL to match your backend route
           if (!response.ok) {
             throw new Error("Network response was not ok");
           }

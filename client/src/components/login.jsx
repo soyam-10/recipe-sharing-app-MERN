@@ -7,7 +7,7 @@ import api from "../api"; // Adjust the path as needed
 import { toast } from "sonner";
 import { useAtom } from "jotai";
 import { sessionAtom } from "@/atoms/session";
-
+import flame from "./flame.png"
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -95,7 +95,7 @@ export default function Login() {
         </div>
         <div className="hidden bg-muted lg:block">
           <img
-            src="./flame.png"
+            src={flame}
             alt="Image"
             className="h-full w-full object-fit dark:brightness-[0.2] dark:grayscale"
           />

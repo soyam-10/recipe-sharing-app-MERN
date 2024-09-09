@@ -34,7 +34,7 @@ export default function RecipePage() {
   useEffect(() => {
     async function fetchRecipe() {
       try {
-        const response = await fetch(`http://localhost:5000/recipes/${id}`);
+        const response = await fetch(`https://backend-recipe-sharing-app-mern.vercel.app/recipes/${id}`);
         const data = await response.json();
         if (data.success) {
           setRecipe(data.recipe);
@@ -61,7 +61,7 @@ export default function RecipePage() {
       const user = session.user.id;
 
       // Submit rating
-      await fetch(`http://localhost:5000/recipes/${id}/rating`, {
+      await fetch(`https://backend-recipe-sharing-app-mern.vercel.app/recipes/${id}/rating`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -71,7 +71,7 @@ export default function RecipePage() {
       });
 
       // Submit review
-      await fetch(`http://localhost:5000/recipes/${id}/review`, {
+      await fetch(`https://backend-recipe-sharing-app-mern.vercel.app/recipes/${id}/review`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -85,7 +85,7 @@ export default function RecipePage() {
       setReview("");
 
       // Refresh recipe data to show the new rating and review
-      const response = await fetch(`http://localhost:5000/recipes/${id}`);
+      const response = await fetch(`https://backend-recipe-sharing-app-mern.vercel.app/recipes/${id}`);
       const data = await response.json();
       if (data.success) {
         setRecipe(data.recipe);

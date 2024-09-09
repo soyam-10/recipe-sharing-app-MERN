@@ -36,7 +36,7 @@ export default function FavRecipes() {
         }
         
         const response = await fetch(
-          `http://localhost:5000/users/favRecipes/${session.user.id}`
+          `https://backend-recipe-sharing-app-mern.vercel.app/users/favRecipes/${session.user.id}`
         );
         if (!response.ok) {
           throw new Error("Failed to fetch favorite recipes");
@@ -46,7 +46,7 @@ export default function FavRecipes() {
         if (data.recipes.length > 0) {
           const recipePromises = data.recipes.map(async (recipeid) => {
             const recipeResponse = await fetch(
-              `http://localhost:5000/recipes/${recipeid._id}`
+              `https://backend-recipe-sharing-app-mern.vercel.app/recipes/${recipeid._id}`
             );
             if (!recipeResponse.ok) {
               throw new Error("Failed to fetch recipe details");
@@ -73,7 +73,7 @@ export default function FavRecipes() {
   const removeFromFavorites = async (recipeId) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/users/removeFromFav/${session.user.id}`,
+        `https://backend-recipe-sharing-app-mern.vercel.app/users/removeFromFav/${session.user.id}`,
         {
           method: "DELETE",
           headers: {

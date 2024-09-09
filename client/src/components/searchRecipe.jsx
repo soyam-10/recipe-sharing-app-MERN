@@ -33,7 +33,7 @@ export default function SearchRecipe() {
     setLoading(true);
     try {
       const response = await fetch(
-        `http://localhost:5000/recipes/search/recipe?query=${searchTerm}`
+        `https://backend-recipe-sharing-app-mern.vercel.app/recipes/search/recipe?query=${searchTerm}`
       );
       if (!response.ok) {
         if (response.status === 404) {

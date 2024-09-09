@@ -24,7 +24,7 @@ import { toast } from "sonner";
 // Fetch all users from the backend
 const fetchAllUsers = async () => {
   try {
-    const response = await fetch("http://localhost:5000/users/allUser");
+    const response = await fetch("https://backend-recipe-sharing-app-mern.vercel.app/users/allUser");
     if (!response.ok) {
       throw new Error("Network response was not ok");
     }
@@ -66,7 +66,7 @@ export default function AdminPanel() {
     };
     const fetchRecipes = async () => {
       try {
-        const response = await fetch("http://localhost:5000/recipes"); // Adjust the URL to match your backend route
+        const response = await fetch("https://backend-recipe-sharing-app-mern.vercel.app/recipes"); // Adjust the URL to match your backend route
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
@@ -76,7 +76,7 @@ export default function AdminPanel() {
         const recipesWithUserInfo = await Promise.all(
           data.recipes.map(async (recipe) => {
             const userResponse = await fetch(
-              `http://localhost:5000/users/${recipe.user}`
+              `https://backend-recipe-sharing-app-mern.vercel.app/users/${recipe.user}`
             );
             if (!userResponse.ok) {
               throw new Error("Failed to fetch user info");
@@ -111,7 +111,7 @@ export default function AdminPanel() {
       }
 
       try {
-        const response = await fetch(`http://localhost:5000/recipes/${id}`, {
+        const response = await fetch(`https://backend-recipe-sharing-app-mern.vercel.app/recipes/${id}`, {
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${session.token}`,
@@ -137,7 +137,7 @@ export default function AdminPanel() {
 
       try {
         const response = await fetch(
-          `http://localhost:5000/recipes/user/${id}`,
+          `https://backend-recipe-sharing-app-mern.vercel.app/recipes/user/${id}`,
           {
             method: "DELETE",
             headers: {
@@ -164,7 +164,7 @@ export default function AdminPanel() {
       }
       try {
         const response = await fetch(
-          `http://localhost:5000/users/${user._id}`,
+          `https://backend-recipe-sharing-app-mern.vercel.app/users/${user._id}`,
           {
             method: "DELETE",
             headers: {

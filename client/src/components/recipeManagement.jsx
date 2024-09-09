@@ -83,7 +83,7 @@ export default function RecipeManagement() {
     setIsLoading(true);
     try {
       const response = await fetch(
-        `http://localhost:5000/recipes/user/${session.user.id}`
+        `https://backend-recipe-sharing-app-mern.vercel.app/recipes/user/${session.user.id}`
       );
 
       const responseBody = await response.json();
@@ -119,7 +119,7 @@ export default function RecipeManagement() {
       }
 
       try {
-        const response = await fetch(`http://localhost:5000/recipes/${id}`, {
+        const response = await fetch(`https://backend-recipe-sharing-app-mern.vercel.app/recipes/${id}`, {
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${session.token}`,
@@ -180,7 +180,7 @@ export default function RecipeManagement() {
     }
 
     try {
-      const response = await fetch("http://localhost:5000/recipes", {
+      const response = await fetch("https://backend-recipe-sharing-app-mern.vercel.app/recipes", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

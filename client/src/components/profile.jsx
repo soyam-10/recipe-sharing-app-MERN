@@ -35,7 +35,7 @@ export default function Profile() {
     async function fetchUserData() {
       try {
         const response = await fetch(
-          `http://localhost:5000/users/${session.user.id}`
+          `https://backend-recipe-sharing-app-mern.vercel.app/users/${session.user.id}`
         );
         const data = await response.json();
         if (data.success) {
@@ -77,7 +77,7 @@ export default function Profile() {
 
       try {
         const response = await fetch(
-          `http://localhost:5000/users/${session.user.id}`,
+          `https://backend-recipe-sharing-app-mern.vercel.app/users/${session.user.id}`,
           {
             method: "PUT",
             headers: {
@@ -110,7 +110,7 @@ export default function Profile() {
 
       try {
         const response = await fetch(
-          `http://localhost:5000/users/password/${session.user.id}`,
+          `https://backend-recipe-sharing-app-mern.vercel.app/users/password/${session.user.id}`,
           {
             method: "PUT",
             headers: {

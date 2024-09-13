@@ -9,7 +9,7 @@ const PORT = process.env.PORT || 5000;
 // Middleware setup
 app.use(express.json());
 app.use(cors({
-  origin: ['https://hamro-recipe.vercel.app'],
+  origin: ['https://hamro-recipe.vercel.app', 'http://localhost:5173'],
   methods: ['GET', 'PUT', 'POST', 'DELETE'],
   credentials: true, // Enable Access-Control-Allow-Credentials
   optionsSuccessStatus: 204 // Some legacy browsers choke on 204

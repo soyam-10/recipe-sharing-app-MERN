@@ -34,7 +34,9 @@ export default function RecipePage() {
   useEffect(() => {
     async function fetchRecipe() {
       try {
-        const response = await fetch(`https://backend-recipe-sharing-app-mern.vercel.app/recipes/${id}`);
+        const response = await fetch(
+          `https://backend-recipe-sharing-app-mern.vercel.app/recipes/${id}`
+        );
         const data = await response.json();
         if (data.success) {
           setRecipe(data.recipe);
@@ -61,31 +63,39 @@ export default function RecipePage() {
       const user = session.user.id;
 
       // Submit rating
-      await fetch(`https://backend-recipe-sharing-app-mern.vercel.app/recipes/${id}/rating`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session.token}`,
-        },
-        body: JSON.stringify({ user, rating: parseInt(rating) }),
-      });
+      await fetch(
+        `https://backend-recipe-sharing-app-mern.vercel.app/recipes/${id}/rating`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.token}`,
+          },
+          body: JSON.stringify({ user, rating: parseInt(rating) }),
+        }
+      );
 
       // Submit review
-      await fetch(`https://backend-recipe-sharing-app-mern.vercel.app/recipes/${id}/review`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session.token}`,
-        },
-        body: JSON.stringify({ user, review }),
-      });
+      await fetch(
+        `https://backend-recipe-sharing-app-mern.vercel.app/recipes/${id}/review`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.token}`,
+          },
+          body: JSON.stringify({ user, review }),
+        }
+      );
 
       toast.success("Rating and review submitted successfully!");
       setRating("3");
       setReview("");
 
       // Refresh recipe data to show the new rating and review
-      const response = await fetch(`https://backend-recipe-sharing-app-mern.vercel.app/recipes/${id}`);
+      const response = await fetch(
+        `https://backend-recipe-sharing-app-mern.vercel.app/recipes/${id}`
+      );
       const data = await response.json();
       if (data.success) {
         setRecipe(data.recipe);
@@ -97,15 +107,33 @@ export default function RecipePage() {
   };
 
   const copyLinkToClipboard = () => {
-    navigator.clipboard
-      .writeText(window.location.href)
-      .then(() => {
-        toast.success("Share Link copied to clipboard!");
-      })
-      .catch((err) => {
-        console.error("Failed to copy link: ", err);
-        toast.error("Failed to copy link.");
-      });
+    if (navigator.share) {
+      // If Web Share API is supported, use it
+      navigator
+        .share({
+          title: "Check out this recipe!",
+          text: "This is an amazing recipe that you should try!",
+          url: window.location.href,
+        })
+        .then(() => {
+          toast.success("Link shared successfully!");
+        })
+        .catch((err) => {
+          console.error("Failed to share link: ", err);
+          toast.error("Failed to share link.");
+        });
+    } else {
+      // If Web Share API is not supported, fall back to copying the link to the clipboard
+      navigator.clipboard
+        .writeText(window.location.href)
+        .then(() => {
+          toast.success("Share Link copied to clipboard!");
+        })
+        .catch((err) => {
+          console.error("Failed to copy link: ", err);
+          toast.error("Failed to copy link.");
+        });
+    }
   };
 
   const handlePrint = () => {

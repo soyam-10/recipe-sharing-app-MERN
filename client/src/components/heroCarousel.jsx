@@ -42,7 +42,7 @@ export default function HeroCarousel() {
           })
         );
 
-        setRecipes(recipesWithUserInfo);
+        setRecipes(recipesWithUserInfo.slice(0, 4));
       } catch (error) {
         setError(error);
         toast.error(error.message);

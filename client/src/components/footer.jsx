@@ -6,18 +6,15 @@ export default function Footer() {
       <div className="container max-w-7xl flex justify-evenly flex-cols-1 sm:flex-cols-2 md:flex-cols-3 gap-5 text-sm">
         <div className="grid gap-1">
           <h3 className="font-semibold">Company</h3>
-          <Link to="#">About Us</Link>
+          <Link to="/about">About Us</Link>
         </div>
         <div className="grid gap-1">
           <h3 className="font-semibold">Products</h3>
           <Link to="/recipes">Recipes</Link>
-          <Link to="#">Categories</Link>
-          <Link to="#">Meal Plans</Link>
-          <Link to="#">Grocery List</Link>
         </div>
         <div className="grid gap-1">
           <h3 className="font-semibold">Contact</h3>
-          <Link to="#">Contact Us</Link>
+          <Link to="/">Contact Us</Link>
         </div>
       </div>
     </footer>

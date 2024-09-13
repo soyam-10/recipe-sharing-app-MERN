@@ -43,12 +43,12 @@ const Register = () => {
 
   return (
     <>
-      <div className="w-full lg:grid lg:min-h-[600px] lg:grid-cols-2 xl:min-h-[800px]">
+      <div className="w-full lg:grid lg:min-h-[600px] lg:grid-cols-2 xl:min-h-[800px] text-white">
         <div className="flex items-center justify-center py-12">
           <div className="mx-auto grid w-[350px] gap-6">
             <div className="grid gap-2 text-center">
               <h1 className="text-3xl font-bold">Register</h1>
-              <p className="text-balance text-muted-foreground">
+              <p className="text-balance">
                 Create your account by entering your email and password
               </p>
             </div>
@@ -61,6 +61,7 @@ const Register = () => {
                   type="text"
                   placeholder="John Doe"
                   value={fullName}
+                  className="text-black"
                   onChange={(e) => setFullName(e.target.value)}
                   required
                 />
@@ -72,6 +73,7 @@ const Register = () => {
                   type="email"
                   placeholder="m@example.com"
                   value={email}
+                  className="text-black"
                   onChange={(e) => setEmail(e.target.value)}
                   required
                 />
@@ -84,6 +86,7 @@ const Register = () => {
                   id="password"
                   type="password"
                   value={password}
+                  className="text-black"
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />
@@ -96,6 +99,7 @@ const Register = () => {
                   id="confirmPassword"
                   type="password"
                   value={confirmPassword}
+                  className="text-black"
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
                 />
@@ -106,10 +110,10 @@ const Register = () => {
                   id="role"
                   value={role}
                   onChange={(e) => setRole(e.target.value)}
-                  className="p-2 border rounded"
+                  className="p-2 border rounded text-black"
                 >
-                  <option value="user">User</option>
-                  <option value="cook">Cook</option>
+                  <option className="text-black" value="user">User</option>
+                  <option className="text-black" value="cook">Cook</option>
                 </select>
               </div>
               <Button type="submit" className="w-full">

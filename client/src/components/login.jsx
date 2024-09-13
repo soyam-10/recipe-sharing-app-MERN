@@ -7,7 +7,6 @@ import api from "../api"; // Adjust the path as needed
 import { toast } from "sonner";
 import { useAtom } from "jotai";
 import { sessionAtom } from "@/atoms/session";
-import flame from "./flame.png"
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -48,8 +47,8 @@ export default function Login() {
         <div className="flex items-center justify-center py-12">
           <div className="mx-auto grid w-[350px] gap-6">
             <div className="grid gap-2 text-center">
-              <h1 className="text-3xl font-bold">Login</h1>
-              <p className="text-balance text-muted-foreground">
+              <h1 className="text-3xl font-bold text-white">Login</h1>
+              <p className="text-balance text-muted-foreground text-white">
                 Enter your email below to login to your account
               </p>
             </div>
@@ -81,11 +80,9 @@ export default function Login() {
               <Button type="submit" className="w-full">
                 Login
               </Button>
-              <Button variant="outline" className="w-full">
-                Login with Google
-              </Button>
+              
             </form>
-            <div className="mt-4 text-center text-sm">
+            <div className="mt-4 text-center text-sm text-white">
               Don&apos;t have an account?{" "}
               <Link to="/register" className="underline">
                 Sign up
@@ -95,7 +92,7 @@ export default function Login() {
         </div>
         <div className="hidden bg-muted lg:block">
           <img
-            src={flame}
+            src="https://static.vecteezy.com/system/resources/previews/010/052/851/original/cute-little-girl-chef-cooking-delicious-vegetable-soup-with-hand-showing-for-copy-space-vector.jpg"
             alt="Image"
             className="h-full w-full object-fit dark:brightness-[0.2] dark:grayscale"
           />
